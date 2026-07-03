@@ -57,7 +57,7 @@ export const LIFE_ZONES = [
     slug: "wonju-enterprise-city", name: "원주 기업도시", city: "wonju-si",
     character: "지정면 일대에 조성된 기업도시 신주거권",
     landmarks: ["원주 기업도시", "지정면 신축 아파트단지"],
-    stay: ["apartment-home"], station: "만종역", index: false, // 시내와 거리 있어 상위 canonical
+    stay: ["apartment-home"], station: "만종역", index: true,
     note: "원주 기업도시는 지정면 일대 신도시로 시내 중심과 거리가 있어 이동 시간을 넉넉히 확인해야 합니다. 세부 설명이 제한적이라 상위 시·군 안내로 통합해 관리합니다.",
   },
   {
@@ -177,28 +177,28 @@ export const LIFE_ZONES = [
     slug: "cheorwon-dongsong-galmal", name: "철원 동송·갈말", city: "cheorwon-gun",
     character: "철원 최대 생활권 동송읍과 고석정·한탄강 관광의 갈말읍",
     landmarks: ["동송읍 소재지", "갈말읍", "고석정", "한탄강"],
-    stay: ["outer-area", "border-area"], station: null, index: false,
+    stay: ["outer-area", "border-area"], station: null, index: true,
     note: "동송은 철원 최대 읍이고 갈말은 고석정·한탄강 관광지가 있습니다. 접경·외곽 특성상 정확한 주소와 진입 가능 여부를 먼저 확인하며, 상위 시·군 안내로 통합해 관리합니다.",
   },
   {
     slug: "hwacheon-sanae", name: "화천읍·사내", city: "hwacheon-gun",
     character: "산천어축제로 알려진 화천읍과 사창리 군부대 접경 사내면",
     landmarks: ["화천읍 소재지", "화천 산천어축제장", "사내면 사창리"],
-    stay: ["outer-area", "border-area"], station: null, index: false,
+    stay: ["outer-area", "border-area"], station: null, index: true,
     note: "화천읍은 산천어축제 시기 유동 인구가 몰리고, 사내면 사창리는 군부대 접경권입니다. 세부 읍면을 촘촘히 나누기보다 상위 시·군 기준으로 이동 가능 여부를 안내합니다.",
   },
   {
     slug: "yanggu-center", name: "양구읍·국토정중앙", city: "yanggu-gun",
     character: "양구 군청 소재 양구읍과 국토정중앙 관광권",
     landmarks: ["양구읍 소재지", "국토정중앙천문대", "양구 백자박물관 인근"],
-    stay: ["outer-area", "border-area"], station: null, index: false,
+    stay: ["outer-area", "border-area"], station: null, index: true,
     note: "양구읍은 군청 소재지이고 국토정중앙 관광 시설이 있습니다. 접경 외곽 특성상 이동 거리와 진입 가능 여부를 확인하며, 상위 시·군 안내로 통합합니다.",
   },
   {
     slug: "inje-wontong", name: "인제읍·원통", city: "inje-gun",
     character: "인제읍과 백담사·설악 입구·군부대 접경의 원통(북면)",
     landmarks: ["인제읍 소재지", "원통 시가지", "백담사 입구", "북면 군부대 접경"],
-    stay: ["outer-area", "border-area"], station: null, index: false,
+    stay: ["outer-area", "border-area"], station: null, index: true,
     note: "원통은 인제 북부의 군부대 접경이자 백담사·설악 입구입니다. 산간·접경 이동 특성상 야간 이동 제한 구간이 있어 상위 시·군 기준으로 안내합니다.",
   },
   {
