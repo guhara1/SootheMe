@@ -21,9 +21,10 @@ npm run serve     # http://localhost:8080 로컬 미리보기 (루트 기준 절
 src/
   config.mjs    전역 설정(상호·전화·도메인·텔레그램 링크) — 배포 전 교체
   data.mjs      지역 DB: 7대 광역 생활권 / 18개 시·군 / 이용 장소 / 예약 전 확인 / 역·터미널
-  render.mjs    공통 레이아웃·<head>·JSON-LD 스키마·푸터(오렌지 텔레그램 버튼)
-  content.mjs   지역 타입별 본문 조합기(도심/해안/리조트/접경/내륙 — 복붙 방지)
-  build.mjs     전체 빌드 오케스트레이션
+  zones.mjs     핵심 생활권(life zone) DB — 지점별 실제 랜드마크·성격·메모
+  render.mjs    공통 레이아웃·<head>·JSON-LD 스키마·푸터·색인 판정(willIndex)
+  content.mjs   지역 타입별 본문 조합기 + 시·군/권역별 고유 성격(도어웨이 방지)
+  build.mjs     전체 빌드 오케스트레이션 + 근접 중복(도어웨이) 검사
 assets/css/main.css   토큰 + 컴포넌트 오버레이
 gangwon/**            생성된 페이지(URL 구조 = 디렉터리 구조)
 sitemap.xml, robots.txt
@@ -43,7 +44,10 @@ sitemap.xml, robots.txt
 ## SEO 설계 원칙 (구글 정책 반영)
 
 - **E-E-A-T / Who·How·Why**: 모든 주요 페이지에 작성·검수 원칙 블록, `작성자·검수자 안내`·`개인정보`·`서비스 불가` 페이지 상시 노출.
-- **얇은 콘텐츠 자동 차단**: 빌드 시 본문 노출 글자수를 측정해 **2,000자 미만 페이지는 자동 `noindex,follow`** 처리(도어웨이·양산 페이지 방지). 역·터미널 허브는 의도적으로 `noindex,follow`(링크 자산은 전달).
+- **얇은 콘텐츠 자동 차단**: 빌드 시 본문 노출 글자수를 측정해 **2,000자 미만 페이지는 자동 `noindex,follow`** 처리(도어웨이·양산 페이지 방지). 역·터미널 허브와 소규모 접경 군(철원·화천·양구·인제)은 의도적으로 `noindex,follow`(사용자 접근·링크 자산은 전달, 색인만 제외).
+- **근접 중복(도어웨이) 검사**: 빌드 때 단독 색인 페이지의 고유 본문을 3-그램 Jaccard로 전수 비교해 유사도가 높은 페어를 경고(현재 최고 유사도 **0.53**, 지역명만 바꾼 복붙 없음). `noindex`·canonical 통합 페이지는 비교에서 제외.
+- **생활권 canonical 통합**: 검색 수요가 약한 외곽 생활권(예: 원주 기업도시, 사내면)은 단독 색인 대신 **상위 시·군으로 canonical 통합**해 도어웨이를 원천 차단. `zones.mjs`의 `index` 플래그로 제어.
+- **지역 고유성**: 시·군·권역·생활권마다 실제 지리·랜드마크(경포·안목, 고석정, 국토정중앙 등)를 본문 앞에 배치해 같은 타입 페이지가 복붙처럼 보이지 않도록 함.
 - **구조화 데이터**: `WebSite` · `Organization` · `WebPage` · `BreadcrumbList` · `FAQPage` · `ImageObject`.
   실제 오프라인 매장이 없는 방문형 서비스이므로 **`LocalBusiness`·`Review`·`AggregateRating` 미사용**. FAQ 스키마는 본문에 실제 노출된 Q&A만 포함.
 - **롱테일 내부링크**: `강원도 출장마사지` 반복 앵커 대신 `강릉 경포·안목 해안 숙소 이용 안내`처럼 이용 상황이 담긴 앵커로 지역·이용 장소·예약 확인 페이지를 상호 연결.
@@ -55,7 +59,10 @@ sitemap.xml, robots.txt
 
 - 메인 `/gangwon/`
 - 7대 광역 생활권 `/gangwon/area/*`
-- 18개 시·군 `/gangwon/{slug}/` (1차 색인 우선 12 + 2차 6)
+- 18개 시·군 `/gangwon/{slug}/` (1차 색인 우선 12 + 2차, 소규모 접경 4곳 noindex)
+- 핵심 생활권 `/gangwon/life/*` (27개 — 검색 수요 약한 곳은 상위 시·군 canonical)
 - 이용 장소 `/gangwon/use/*` · 예약 전 확인 `/gangwon/check/*`
-- 교통 거점 `/gangwon/station/*`
+- 교통 거점 `/gangwon/station/*` (noindex 허브)
 - 운영: `author` · `contact` · `sitemap-page` · `privacy` · `service-policy`
+
+> **도어웨이 안내**: 스펙에 있던 리조트·해안 "숙소 이용" 상세 페이지(예: `용평 리조트 숙소`, `경포 해안 숙소`)는 같은 지점을 다루는 생활권 페이지와 **중복(도어웨이)** 이 되므로 생성하지 않았습니다. 지점 콘텐츠는 생활권 페이지 하나로, 숙소 유형 가이드는 `use` 페이지 하나로 유지하고 상호 링크합니다.

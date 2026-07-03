@@ -4,10 +4,35 @@
 // "지역명만 바꾼 복붙" 방지 — 타입별 서술과 실제 지역 데이터가 결합된다.
 // =============================================================================
 import { AREAS, CITIES, USE_PAGES, CHECK_PAGES, STATIONS, COURSES } from "./data.mjs";
+import { LIFE_ZONES } from "./zones.mjs";
 import { esc } from "./render.mjs";
 
 const areaBySlug = Object.fromEntries(AREAS.map((a) => [a.slug, a]));
 const cityBySlug = Object.fromEntries(CITIES.map((c) => [c.slug, c]));
+const zonesByCity = LIFE_ZONES.reduce((m, z) => ((m[z.city] ??= []).push(z), m), {});
+
+// 시·군별 고유 성격 서술(실제 지리·특징) — 같은 타입 페이지가 복붙처럼 보이지
+// 않도록 각 도시의 실제 특징을 본문 앞에 배치한다(도어웨이 방지).
+const CITY_FEATURES = {
+  "chuncheon-si": "춘천시는 소양강과 의암호를 낀 강원 영서 내륙의 중심 도시로, 강원대·한림대 대학가와 명동 닭갈비 상권, 남춘천역 역세권이 함께 있습니다. 호수 관광과 도심 생활권이 붙어 있어 시간대별 이동 흐름 차이가 큰 편입니다.",
+  "wonju-si": "원주시는 강원 최대 인구 도시이자 공공기관이 이전한 혁신도시와 지정면 기업도시를 품은 산업·행정 거점입니다. KTX 원주역과 신도심 무실·단계 상권을 중심으로 업무·출장 이동 수요가 많습니다.",
+  "gangneung-si": "강릉시는 KTX 강릉역과 경포·안목 해변, 커피거리, 교동 상권이 어우러진 동해안 대표 관광·교통 도시입니다. 시내 생활권과 해안 관광권의 이동·주차 여건이 뚜렷이 다릅니다.",
+  "sokcho-si": "속초시는 설악산과 동해를 함께 낀 관광 도시로, 대포항·속초해변·중앙시장·설악동 숙박권이 좁은 시가지에 밀집해 있습니다. 성수기 시내 도로 정체가 이동 시간을 좌우합니다.",
+  "donghae-si": "동해시는 묵호항 논골담길과 망상해변 같은 해안 관광과 항만·산업이 공존하는 도시입니다. 천곡 도심과 묵호 항구권의 진입로·주차 성격이 서로 다릅니다.",
+  "samcheok-si": "삼척시는 삼척해변과 쏠비치 리조트, 죽서루, 삼척항을 낀 동해안 남부 관광 도시입니다. 대규모 해안 리조트와 도심 상권이 함께 있어 숙소 유형별 확인 항목이 갈립니다.",
+  "taebaek-si": "태백시는 황지연못(낙동강 발원지)과 매봉산 바람의언덕을 낀 국내 최고지대 산악 도시입니다. 고지대·겨울 눈 특성상 계절에 따라 이동 시간이 크게 달라집니다.",
+  "hongcheon-gun": "홍천군은 전국에서 면적이 가장 넓은 군으로, 비발디파크·오션월드 리조트와 홍천강·수타사 관광이 흩어져 있습니다. 리조트 배후권과 외곽 펜션권의 이동 거리 편차가 큽니다.",
+  "pyeongchang-gun": "평창군은 2018 동계올림픽 개최지로 대관령·용평·휘닉스파크·알펜시아 리조트와 봉평 메밀꽃마을을 낀 산악 관광지입니다. 고지대 리조트 단지 이동과 겨울 도로 관리가 핵심입니다.",
+  "jeongseon-gun": "정선군은 강원랜드·하이원리조트와 정선아리랑·레일바이크·정선5일장으로 알려진 산간 관광 군입니다. 고한·사북 고지대 생활권과 리조트 진입 동선이 이동 기준을 좌우합니다.",
+  "yangyang-gun": "양양군은 죽도·인구 서핑 해변과 낙산사·낙산해변, 남대천 연어로 알려진 서핑 1번지입니다. 서핑 시즌 해변권 숙소 수요가 계절에 따라 크게 몰립니다.",
+  "goseong-gun": "고성군은 화진포·통일전망대·아야진을 낀 최북단 접경 해안 군입니다. 속초와 이어지는 토성 해안 펜션권과 간성·거진 북부권의 이동 거리가 다릅니다.",
+  "hoengseong-gun": "횡성군은 횡성한우와 웰리힐리파크, 안흥찐빵으로 알려진 영서 내륙 군입니다. 둔내 고원 리조트권과 읍내·외곽의 이동 시간 차이가 큽니다.",
+  "inje-gun": "인제군은 내설악·백담사·자작나무숲을 낀 산악 접경 군으로, 원통(북면) 일대 군부대 접경권이 특징입니다. 산간·접경 이동 특성상 야간 이동 제한 구간이 있습니다.",
+  "cheorwon-gun": "철원군은 한탄강·고석정·노동당사·DMZ 안보관광을 낀 접경 군입니다. 동송·갈말 생활권을 중심으로 정확한 주소와 접경 진입 가능 여부 확인이 먼저입니다.",
+  "hwacheon-gun": "화천군은 산천어축제와 파로호·평화의댐으로 알려진 접경 군입니다. 화천읍 축제권과 사내면 사창리 군부대 접경권의 성격이 다릅니다.",
+  "yanggu-gun": "양구군은 국토정중앙과 펀치볼·을지전망대를 낀 접경 산악 군입니다. 양구읍 중심 생활권과 접경 외곽의 이동 거리를 나누어 확인합니다.",
+  "yeongwol-gun": "영월군은 단종 유배지 장릉·청령포와 동강 래프팅, 별마로천문대로 알려진 내륙 관광 군입니다. 읍내 유적권과 동강 캠핑·펜션권의 진입로가 서로 다릅니다.",
+};
 
 const list = (arr) => arr.map(esc).join(", ");
 
@@ -73,6 +98,17 @@ function typeMobility(type, name) {
   }
 }
 
+// 권역별 고유 성격 서술(실제 특징) — 광역 생활권 페이지 차별화
+const AREA_FEATURES = {
+  "chuncheon-hongcheon": "춘천·홍천권은 소양강·의암호를 낀 춘천 도심 생활권과, 비발디파크·오션월드로 대표되는 홍천 리조트권이 한 권역에 묶인 곳입니다. 대학가·역세권 도심과 서울 접근성 좋은 대형 리조트가 함께 있어 성격이 뚜렷이 갈립니다.",
+  "wonju-hoengseong": "원주·횡성권은 혁신도시·기업도시와 KTX 원주역을 낀 원주 도심권과, 웰리힐리파크·횡성한우로 알려진 횡성 고원 리조트권이 이어지는 곳입니다. 업무·출장 수요가 큰 도심과 고랭지 리조트 이동 기준이 함께 필요합니다.",
+  "gangneung-donghae-samcheok": "강릉·동해·삼척권은 KTX 강릉역·경포·안목을 낀 강릉, 묵호항·망상의 동해, 쏠비치·삼척해변의 삼척으로 이어지는 동해안 중부 해안 벨트입니다. 관광 해변과 항만·리조트가 촘촘히 붙어 성수기 해안도로 흐름이 이동을 좌우합니다.",
+  "sokcho-yangyang-goseong": "속초·양양·고성권은 설악산·대포항의 속초, 서핑 해변 죽도·인구의 양양, 화진포·통일전망대의 고성으로 이어지는 동해안 북부권입니다. 관광 숙소·서핑 숙소·접경 해안 펜션까지 숙소 성격이 다양합니다.",
+  "pyeongchang-jeongseon-taebaek": "평창·정선·태백권은 동계올림픽 개최지 평창(대관령·용평·휘닉스파크)과 강원랜드·하이원의 정선, 국내 최고지대 태백으로 이어지는 산악 리조트 벨트입니다. 고지대·겨울 도로 관리가 이동 기준의 핵심입니다.",
+  "cheorwon-hwacheon-yanggu-inje": "철원·화천·양구·인제권은 한탄강·DMZ 안보관광의 철원, 산천어축제의 화천, 국토정중앙의 양구, 내설악·백담사의 인제로 이어지는 접경·군부대 인접 벨트입니다. 세부 읍면보다 정확한 주소와 외곽 이동 가능 여부 확인이 먼저입니다.",
+  "yeongwol-south-inland": "영월·남부 내륙권은 단종 유적 장릉·청령포와 동강 래프팅의 영월을 중심으로 제천 인접 내륙 관광 숙소가 흩어진 권역입니다. 도심 상권보다 펜션·캠핑 숙소와 외곽 진입 도로 확인이 중요합니다. 동강 주변 독채·캠핑 숙소는 진입로가 좁고 야간 이동이 제한되는 곳이 있어, 방문 주소와 진입 방식을 예약 전에 함께 확인하는 편이 안전하며, 별마로천문대·주천 방면처럼 외곽으로 갈수록 이동 시간을 넉넉히 잡아야 합니다.",
+};
+
 // 상단 요금 섹션(메인·주요 페이지 재사용)
 export function pricingSection() {
   return `<section class="section"><div class="wrap center">
@@ -120,29 +156,47 @@ export function cityBody(city) {
     { q: "불법·선정적 서비스도 가능한가요?", a: "불법·선정적 서비스는 제공하거나 안내하지 않습니다." },
   ];
 
+  // 이 도시의 실제 대표 지점(생활권 DB에서 수집) — 도시별 고유 지명 주입
+  const cityZones = zonesByCity[city.slug] || [];
+  const landmarks = [...new Set(cityZones.flatMap((z) => z.landmarks))];
+  const landmarkText = landmarks.length
+    ? `대표 지점으로는 <strong>${landmarks.slice(0, 6).map(esc).join(", ")}</strong> 등이 있어, 방문 주소가 어느 지점과 가까운지에 따라 이동 동선과 주차 여건이 달라집니다.`
+    : `${esc(city.name)} 안에서도 상권 중심과 외곽 주거지는 이동 동선과 주차 여건이 다릅니다.`;
+  const lifeLinks = cityZones.filter((z) => z.index).slice(0, 4)
+    .map((z) => `<a href="/gangwon/life/${z.slug}/">${esc(z.name)}</a>`).join(", ");
+  const lifeLine = lifeLinks
+    ? `세부 생활권은 ${lifeLinks} 페이지에서 각각의 이용 기준을 확인할 수 있습니다.`
+    : "";
+  const feature = CITY_FEATURES[city.slug] || typeCharacter(city.type, city.name);
+  // 도시별 생활권 특징(생활권 DB의 실제 성격·메모) — 도시 고유성 강화
+  const zoneBreakdown = cityZones.length
+    ? `<ul>${cityZones.map((z) => `<li><strong>${esc(z.name)}</strong> — ${esc(z.character)}. ${esc(z.note)}</li>`).join("")}</ul>`
+    : "";
+
   const body = `
 <section class="section"><div class="wrap">
   <span class="eyebrow">${esc(area.name)}</span>
   <h1>${esc(city.h1)}</h1>
   <div class="prose">
-    <p>${esc(typeIntro(city.type, city.name, zonesText))}</p>
-    <p>${esc(typeCharacter(city.type, city.name))}</p>
+    <p>${esc(feature)}</p>
+    ${(city.type === "border") ? "" : `<p>${esc(typeIntro(city.type, city.name, zonesText))}</p>`}
 
-    <h2>상위 권역 속 ${esc(city.name)}의 위치</h2>
-    <p>${esc(city.name)}은 <strong>${esc(area.name)}</strong>에 속하며, 이 권역은 ${esc(list(area.includes))} 지역을 함께 안내합니다. 인접 지역과 이동 동선이 이어지는 경우가 많아, ${esc(city.name)} 단독으로만 보지 않고 상위 권역의 숙소 유형과 이동 기준을 함께 확인하면 예약이 더 정확해집니다.</p>
+    <h2>${esc(city.name)} 대표 생활권과 지점</h2>
+    <p>${esc(city.name)}의 주요 생활권은 <strong>${zonesText}</strong>입니다. ${landmarkText} ${lifeLine} 방문 전에는 어느 생활권에 위치한 숙소인지, 건물 형태가 무엇인지를 먼저 확인하는 것이 예약을 정확하게 진행하는 방법입니다.</p>
+    ${zoneBreakdown}
 
-    <h2>${esc(city.name)} 대표 생활권</h2>
-    <p>${esc(city.name)}의 주요 생활권은 <strong>${zonesText}</strong>입니다. 같은 ${esc(city.name)} 안에서도 상권 중심지와 외곽 주거지, 관광 숙소 밀집 구역은 이동 시간과 주차 환경이 다릅니다. 방문 전에는 어느 생활권에 위치한 숙소인지, 건물 형태가 무엇인지를 먼저 확인하는 것이 예약을 정확하게 진행하는 방법입니다. 특히 ${esc(city.zones[0])} 방면은 유동 인구가 많아 시간대에 따라 진입과 주차 여건이 달라질 수 있습니다.</p>
-
-    <h2>가까운 역·터미널</h2>
-    <p>${esc(stationText)} 역·터미널 인접 숙소는 접근성이 좋지만, 출구별·노선별로 페이지를 나누기보다 실제 방문 주소와 숙소 형태를 기준으로 이용 가능 여부를 확인하는 것이 정확합니다.</p>
+    <h2>상위 권역 속 위치와 가까운 역·터미널</h2>
+    <p>${esc(city.name)}은 <strong>${esc(area.name)}</strong>에 속하며, 이 권역은 ${esc(list(area.includes))} 지역을 함께 안내합니다. ${esc(stationText)} 인접 지역과 이동 동선이 이어지는 경우가 많아, 상위 권역의 숙소 유형과 이동 기준을 함께 확인하면 예약이 더 정확해집니다.</p>
 
     <h2>숙소 유형별 이용 기준</h2>
-    <p>${esc(city.name)}에서 자주 이용되는 숙소 유형은 아래와 같으며, 유형마다 확인 항목이 다릅니다.</p>
-    <ul>${stayText}</ul>
+    ${(city.type === "border")
+      ? `<p>${esc(city.name)}에서는 ${esc([...new Set(city.stay)].map((s) => USE_PAGES.find((u) => u.slug === s)?.name).filter(Boolean).join(", "))} 기준을 주로 확인합니다. 접경·외곽 특성상 숙소 유형보다 정확한 주소와 진입 가능 여부가 먼저이며, 세부 기준은 <a href="/gangwon/use/outer-area/">외곽 지역 이용</a>과 <a href="/gangwon/use/border-area/">군부대·접경권 인접 이용</a> 페이지에서 확인할 수 있습니다.</p>`
+      : `<p>${esc(city.name)}에서 자주 이용되는 숙소 유형은 아래와 같으며, 유형마다 확인 항목이 다릅니다.</p>\n    <ul>${stayText}</ul>`}
 
     <h2>외곽·산간·겨울철 이동 기준</h2>
-    <p>${esc(typeMobility(city.type, city.name))} 자세한 확인 항목은 <a href="/gangwon/check/winter-road/">겨울철 도로·날씨 확인</a>과 <a href="/gangwon/check/night-travel/">야간 이동 가능 여부</a> 페이지에서 안내합니다.</p>
+    ${(city.type === "border") && landmarks.length
+      ? `<p>${esc(city.name)}은 ${esc(landmarks.slice(0, 3).join(", "))} 방면처럼 지점에 따라 진입 도로와 이동 거리가 크게 벌어집니다. 특히 ${esc(landmarks[0])} 주변과 외곽 방향은 도심 기준과 이동 시간이 달라, 예약 시 정확한 방문 주소와 진입 가능 여부, 야간 이동 가능 시간을 먼저 확인하는 편이 정확합니다. 겨울철에는 도로 결빙으로 이동 시간이 더 달라질 수 있어 <a href="/gangwon/check/winter-road/">겨울철 도로·날씨 확인</a> 기준을 함께 봅니다. 검색 수요가 약한 세부 읍면은 얇은 페이지를 만들지 않고 이 시·군 안내 또는 <a href="/gangwon/use/outer-area/">외곽 지역 이용</a> 기준으로 통합해 관리합니다.</p>`
+      : `<p>${esc(typeMobility(city.type, city.name))} 자세한 확인 항목은 <a href="/gangwon/check/winter-road/">겨울철 도로·날씨 확인</a>과 <a href="/gangwon/check/night-travel/">야간 이동 가능 여부</a> 페이지에서 안내합니다.</p>`}
 
     <h2>예약 전 확인 요약</h2>
     <p>방문 주소와 건물 형태, 공동현관·객실 출입 방식, 주차 가능 여부, 예약 가능 시간과 변경 기준, 그리고 <a href="/gangwon/check/privacy/">개인정보 처리 기준</a>을 확인합니다. 확인이 끝나면 <a href="tel:0508-202-4719">전화예약 0508-202-4719</a>로 방문 가능 여부를 안내받을 수 있습니다. ${esc(SITE_LINE)}</p>
@@ -192,8 +246,8 @@ export function areaBody(area) {
   <span class="eyebrow">7대 광역 생활권</span>
   <h1>${esc(area.h1)}</h1>
   <div class="prose">
+    <p>${esc(AREA_FEATURES[area.slug] || typeCharacter(area.type, area.name))}</p>
     <p>${esc(typeIntro(area.type, area.name, zonesText))}</p>
-    <p>${esc(typeCharacter(area.type, area.name))}</p>
     <p>이 권역은 <strong>${list(area.includes)}</strong>을 포함하며, 대표 생활권으로는 ${zonesText} 등이 있습니다. 각 지역은 도심 생활권·관광 숙소·외곽 이동 기준이 서로 다르므로, 지역명 반복보다 숙소 유형과 이동 기준을 기준으로 방문 가능 여부를 확인하는 것이 정확합니다.</p>
     <p>대표 생활권을 기준으로 보면, ${esc(area.zones[0])} 방면은 유동 인구와 상권이 형성된 중심 구역이고, ${esc(area.zones[area.zones.length - 1])} 방면은 외곽·관광 숙소 성격이 강해 이동 시간과 진입 방식이 다릅니다. 따라서 같은 ${esc(area.name)} 안에서도 방문 주소가 어느 생활권에 속하는지, 건물이 호텔·펜션·리조트·오피스텔 중 무엇인지에 따라 예약 전 확인 항목이 달라집니다. 아래 시·군 안내와 이용 장소 페이지에서 상황에 맞는 기준을 확인하세요.</p>
 
@@ -212,9 +266,26 @@ export function areaBody(area) {
   return { body, faqs, related, context: area.name };
 }
 
+// 이용 장소별 고유 보충 서술 + 고유 확인 항목 (use 페이지 차별화)
+const USE_DETAIL = {
+  hotel: { p: "호텔·비즈니스 숙소는 강원도 도심과 관광지 전반에 분포합니다. 관광 성수기에는 로비 혼잡과 발렛·주차 대기가 이동 시간을 늘릴 수 있어, 체크인 이후 시간대로 여유를 두는 편이 좋습니다.", li: ["프런트·로비 위치와 객실 층", "지하·외부 주차 진입 방식", "관광철 로비 혼잡 시간대"] },
+  pension: { p: "펜션·독채 숙소는 강원 외곽·해안·산간에 많아 진입로와 주차 환경이 도심 숙소와 크게 다릅니다. 단지형 펜션은 객실이 어느 동인지, 개별 독채는 대문·현관 출입 방식이 무엇인지 확인이 필요합니다.", li: ["대문·현관 개별 출입 방식", "단지 내 객실 동 위치", "외진 진입로·야간 이동 가능 여부"] },
+  resort: { p: "리조트는 평창·정선·홍천·횡성 등 산악·리조트권에 집중되어 있습니다. 콘도·호텔 동이 여러 개로 나뉘고 단지가 넓어, 같은 리조트라도 동·층에 따라 진입 동선이 길어집니다.", li: ["콘도·호텔 동과 층 위치", "단지 정문·후문 진입 경로", "시즌 성수기 주차·셔틀 동선"] },
+  officetel: { p: "오피스텔은 춘천·원주·강릉 등 도심 생활권에 많습니다. 공동현관 비밀번호와 관리실 운영 시간, 야간 출입 방식이 건물마다 달라 예약 전 확인이 특히 중요합니다.", li: ["공동현관 비밀번호·출입 방식", "관리실 운영 시간", "정확한 동·호수"] },
+  "apartment-home": { p: "아파트·자택은 방문 주차 등록과 공동현관 출입 방식이 단지마다 다릅니다. 방문 주소의 동·호수가 정확해야 이동 시간이 정확히 계산됩니다.", li: ["방문 차량 주차 등록 방식", "공동현관·엘리베이터 이용", "동·호수와 출입구 방향"] },
+  "ktx-station": { p: "KTX·터미널 인접 숙소는 강릉역·원주역·춘천역·속초터미널 등과 가까워 접근성이 좋습니다. 다만 역 주변은 주차가 혼잡하고 도보 동선이 있어, 출구별로 나누기보다 실제 숙소 주소로 확인합니다.", li: ["역·터미널 주변 주차 여건", "숙소까지 도보 동선", "실제 방문 주소 기준 확인"] },
+  "beach-accommodation": { p: "동해안 해안 숙소는 강릉 경포·안목, 속초 대포항, 양양 낙산·죽도 등 해변을 낀 곳에 많습니다. 여름 성수기와 주말에는 해안도로 정체와 주차난이 뚜렷해 예약 시간대에 여유가 필요합니다.", li: ["해변 인접 진입로·주차", "성수기 해안도로 정체 시간", "객실이 해변동인지 시내동인지"] },
+  "ski-resort": { p: "스키장·리조트는 용평·휘닉스파크·하이원·비발디파크 등 겨울 성수기 수요가 큰 곳입니다. 시즌 진입 도로 정체와 결빙으로 이동 시간이 평소보다 크게 늘어날 수 있습니다.", li: ["겨울 진입 도로 결빙·정체", "리조트 동·층과 셔틀 동선", "심야 이동 제한 여부"] },
+  "border-area": { p: "군부대·접경권 인접 숙소는 철원·화천·양구·인제 일대에 있습니다. 정확한 주소와 진입 가능 여부 확인이 우선이며, 얇은 읍면 단위보다 외곽 이동 기준으로 안내합니다.", li: ["정확한 방문 주소·진입 가능 여부", "접경 외곽 이동 거리", "야간 이동 가능 시간"] },
+  night: { p: "야간 예약은 이동 시간과 도로 상황을 먼저 확인합니다. 강원도 산간·외곽은 심야에 이동이 제한되는 구간이 있어, 도심권과 외곽권의 가능 시간대가 다릅니다.", li: ["심야 이동 가능 시간대", "산간·외곽 야간 이동 제한", "야간 공동현관 출입 방식"] },
+  "outer-area": { p: "외곽 지역은 이동 거리와 도로 사정에 따라 예약 가능 시간이 제한될 수 있습니다. 산간·접경 방향은 도심 기준과 다르게 이동 시간을 넉넉히 잡아야 합니다.", li: ["도심 대비 이동 거리·시간", "진입 도로 상태", "겨울철 별도 도로 확인"] },
+  "winter-road": { p: "겨울철에는 대관령·정선·태백·인제 등 산간 도로의 결빙·적설로 이동 시간이 달라집니다. 예약 전 도로 상황을 별도로 확인하는 것이 안전합니다.", li: ["산간 도로 결빙·적설 여부", "제설·통제 구간", "이동 시간 여유 확보"] },
+};
+
 // ---- 이용 장소 페이지 본문 ----
 export function useBody(use) {
   const key = use.slug;
+  const d = USE_DETAIL[key] || { p: STAY_TEXT[key] || "", li: ["방문 주소", "출입 방식", "주차·진입", "예약 시간"] };
   const relatedCities = CITIES.filter((c) => c.stay.includes(key)).slice(0, 6);
   const related = [
     ...relatedCities.map((c) => ({ url: `/gangwon/${c.slug}/`, anchor: `${c.name} ${use.name} 이용 안내` })),
@@ -231,13 +302,9 @@ export function useBody(use) {
   <h1>${esc(use.name)} 이용 기준</h1>
   <div class="prose">
     <p>${esc(STAY_TEXT[key] || "")}</p>
-    <h2>확인 항목</h2>
-    <ul>
-      <li><strong>방문 주소</strong> — 건물명·동호수까지 정확히 확인합니다.</li>
-      <li><strong>출입 방식</strong> — 공동현관·프런트·객실 출입 방식을 확인합니다.</li>
-      <li><strong>주차·진입</strong> — 차량 진입과 주차 가능 여부를 확인합니다.</li>
-      <li><strong>예약 시간</strong> — 이동 거리에 따라 가능 시간대를 확인합니다.</li>
-    </ul>
+    <p>${esc(d.p)}</p>
+    <h2>${esc(use.name)} 확인 항목</h2>
+    <ul>${d.li.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
     <p>${esc(SITE_LINE)} 자세한 기준은 <a href="/gangwon/check/address/">방문 주소 확인</a>과 <a href="/gangwon/check/time/">예약 가능 시간</a> 페이지에서 확인할 수 있습니다.</p>
   </div>
 </div></section>`;
@@ -303,4 +370,58 @@ export function stationBody(st) {
   </div>
 </div></section>`;
   return { body, faqs: [], related, context: st.name };
+}
+
+// ---- 핵심 생활권(life zone) 페이지 본문 ----
+export function lifeBody(zone) {
+  const city = cityBySlug[zone.city];
+  const area = areaBySlug[city.area];
+  const lm = zone.landmarks;
+  const stayText = [...new Set(zone.stay)]
+    .map((s) => `<li><strong>${esc(USE_PAGES.find((u) => u.slug === s)?.name || s)}</strong> — ${esc(STAY_TEXT[s] || "")}</li>`)
+    .join("");
+  const stationLine = zone.station
+    ? `가까운 교통 거점은 <a href="/gangwon/station/${STATIONS.find((st) => st.name === zone.station)?.slug || ""}/">${esc(zone.station)}</a>이며, 역 인접 숙소는 주차와 도보 동선을 함께 확인합니다.`
+    : `이 생활권은 철도 거점이 가깝지 않아, ${esc(city.name)} 시내와 주요 도로를 기준으로 이동 시간을 확인합니다.`;
+
+  // 롱테일 내부링크: 상위 시·군 + 같은 시 다른 생활권 + 이용 장소 + 예약 확인
+  const siblings = LIFE_ZONES.filter((z) => z.city === zone.city && z.slug !== zone.slug);
+  const related = [
+    { url: `/gangwon/${city.slug}/`, anchor: `${city.name} 생활권 전체 안내` },
+    ...siblings.map((z) => ({ url: `/gangwon/life/${z.slug}/`, anchor: `${z.name} 이용 기준 확인` })),
+    ...[...new Set(zone.stay)].slice(0, 2).map((s) => ({ url: `/gangwon/use/${s}/`, anchor: `${USE_PAGES.find((u) => u.slug === s)?.name} 이용 기준` })),
+    { url: `/gangwon/area/${area.slug}/`, anchor: `${area.name} 보기` },
+    { url: "/gangwon/check/address/", anchor: "방문 주소 확인 기준" },
+  ];
+
+  const faqs = [
+    { q: `${zone.name}은 어떤 생활권인가요?`, a: `${zone.name}은 ${zone.character}입니다. ${lm.slice(0, 2).join(", ")} 인근을 중심으로 방문 주소와 숙소 유형을 확인해 안내합니다.` },
+    { q: `${zone.name}에서 무엇을 먼저 확인하나요?`, a: STAY_TEXT[zone.stay[0]] || "방문 주소, 출입 방식, 주차, 예약 가능 시간을 먼저 확인합니다." },
+    { q: "불법·선정적 서비스도 가능한가요?", a: "불법·선정적 서비스는 제공하거나 안내하지 않습니다." },
+  ];
+
+  const h1 = `${zone.name} · 생활권과 숙소 이용 기준 안내`;
+  const body = `
+<section class="section"><div class="wrap">
+  <span class="eyebrow">${esc(city.name)} · ${esc(area.name)}</span>
+  <h1>${esc(h1)}</h1>
+  <div class="prose">
+    <p>${esc(zone.name)}은 ${esc(city.name)}에 속한 생활권으로, ${esc(zone.character)}입니다. ${esc(zone.note)}</p>
+
+    <h2>대표 지점</h2>
+    <p>${esc(zone.name)} 주변으로는 <strong>${lm.map(esc).join(", ")}</strong> 등이 대표 지점으로 꼽힙니다. 같은 생활권 안에서도 상권 중심과 외곽, 관광 지점 인근은 이동 동선과 주차 환경이 달라, 방문 주소가 어느 지점과 가까운지를 먼저 확인하는 것이 예약을 정확하게 진행하는 방법입니다.</p>
+
+    <h2>위치와 접근</h2>
+    <p>${esc(zone.name)}은 상위 권역인 <a href="/gangwon/area/${area.slug}/">${esc(area.name)}</a>에 속하며, <a href="/gangwon/${city.slug}/">${esc(city.name)}</a> 안내와 함께 보면 이동 기준을 잡기 쉽습니다. ${stationLine}</p>
+
+    <h2>숙소 유형별 이용 기준</h2>
+    <p>${esc(zone.name)}에서 자주 이용되는 숙소 유형과 확인 항목은 아래와 같습니다.</p>
+    <ul>${stayText}</ul>
+
+    <h2>이동·예약 전 확인</h2>
+    <p>${esc(zone.name)}은 시간대와 계절에 따라 진입·주차 여건이 달라질 수 있어, 방문 주소와 건물 형태, 공동현관·객실 출입 방식, 주차 가능 여부, 예약 가능 시간을 먼저 확인합니다. 겨울철 이동이 필요한 지역이면 <a href="/gangwon/check/winter-road/">겨울철 도로·날씨 확인</a> 기준을 함께 봅니다. 확인이 끝나면 <a href="tel:0508-202-4719">전화예약 0508-202-4719</a>로 방문 가능 여부를 안내받을 수 있습니다. ${esc(SITE_LINE)}</p>
+  </div>
+</div></section>`;
+
+  return { body, faqs, related, context: zone.name };
 }

@@ -7,13 +7,16 @@ import { SITE, DEFAULT_OG } from "./config.mjs";
 export const esc = (s = "") =>
   String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-// HTML 태그 제거 후 실제 노출 텍스트 길이(공백 제외 근사) 계산 → noindex 판정용
-export const visibleLen = (html) =>
+// HTML 태그 제거 후 실제 노출 텍스트 추출 → 길이 측정·유사도 검사용
+export const visibleText = (html) =>
   html.replace(/<script[\s\S]*?<\/script>/g, "")
       .replace(/<style[\s\S]*?<\/style>/g, "")
-      .replace(/<[^>]+>/g, "")
-      .replace(/\s+/g, "")
-      .length;
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&[a-z]+;/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+export const visibleLen = (html) => visibleText(html).replace(/\s+/g, "").length;
 
 // description 80자 제한 검증(초과 시 절단하되 로그)
 export const clampDesc = (d) => {
@@ -84,8 +87,8 @@ function faqSchema(faqs) {
 }
 
 // ---- <head> ----
-function head({ url, title, desc, image, noindex }) {
-  const canonical = abs(url);
+function head({ url, title, desc, image, noindex, canonicalUrl }) {
+  const canonical = abs(canonicalUrl || url);
   const og = abs(image || DEFAULT_OG);
   return `<!doctype html>
 <html lang="ko">
@@ -231,15 +234,25 @@ export function relatedBlock(links, heading = "관련 지역 보기") {
 }
 
 // ---- 최종 페이지 조립 ----
-export function page({ url, title, desc, image, crumbs = [], faqs = [], extraSchema = [], body }) {
+// canonicalUrl: 다른 URL로 통합(consolidate)할 경우 지정. 지정 시 length 기반
+//   noindex를 적용하지 않는다 — canonical과 noindex를 동시에 주면 신호가 충돌하므로,
+//   얇은 변형 페이지는 canonical로만 상위 페이지에 합친다(도어웨이 방지).
+// 페이지가 실제로 색인되는지 판정 (page()와 도어웨이 검사가 공유)
+export function willIndex({ url, body, canonicalUrl }) {
+  const consolidated = canonicalUrl && canonicalUrl !== url;
+  if (consolidated) return false;
+  if (url === "/gangwon/" || url.match(/\/(contact|author|sitemap-page|check|use)\b/)) return true;
+  return visibleLen(body) >= 2000;
+}
+
+export function page({ url, title, desc, image, crumbs = [], faqs = [], extraSchema = [], body, canonicalUrl }) {
   desc = clampDesc(desc);
-  const noindexProbe = visibleLen(body);
-  const noindex = noindexProbe < 2000 && !url.match(/\/(contact|author|sitemap-page|check|use)\b/) && url !== "/gangwon/";
+  const noindex = !willIndex({ url, body, canonicalUrl });
   // 색인 대상 상세페이지가 2000자 미만이면 noindex (스팸/얇은 페이지 방지)
   const graph = [
     { "@type": "WebSite", "@id": abs("/#website"), url: SITE.domain + "/", name: SITE.name, inLanguage: "ko-KR", publisher: { "@id": abs("/#organization") } },
     organizationSchema(),
-    webPageSchema({ url, title, desc, image }),
+    webPageSchema({ url: canonicalUrl || url, title, desc, image }),
   ];
   if (crumbs.length) graph.push(breadcrumbSchema(crumbs));
   const fs = faqSchema(faqs);
@@ -254,7 +267,7 @@ export function page({ url, title, desc, image, crumbs = [], faqs = [], extraSch
         .join("")}</nav></div>`
     : "";
 
-  return `${head({ url, title, desc, image, noindex })}
+  return `${head({ url, title, desc, image, noindex, canonicalUrl })}
 ${nav()}
 ${crumbHtml}
 <main>

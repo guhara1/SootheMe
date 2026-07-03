@@ -7,12 +7,16 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { SITE } from "./config.mjs";
 import { AREAS, CITIES, USE_PAGES, CHECK_PAGES, STATIONS, COURSES } from "./data.mjs";
+import { LIFE_ZONES } from "./zones.mjs";
 import {
-  page, esc, whwBlock, faqBlock, checklistBlock, relatedBlock, clampDesc,
+  page, esc, whwBlock, faqBlock, checklistBlock, relatedBlock, clampDesc, visibleText, willIndex,
 } from "./render.mjs";
 import {
-  pricingSection, cityBody, areaBody, useBody, checkBody, stationBody,
+  pricingSection, cityBody, areaBody, useBody, checkBody, stationBody, lifeBody,
 } from "./content.mjs";
+
+const cityBySlug = Object.fromEntries(CITIES.map((c) => [c.slug, c]));
+const corpus = []; // {url, text} — 근접 중복(도어웨이) 검사용
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const written = []; // {url, priority, changefreq}
@@ -26,15 +30,19 @@ function emit(url, html, { priority = 0.6, changefreq = "monthly", index = true 
 }
 
 // 상세페이지 공통 조립 (본문 + 체크리스트 + FAQ + WHW + 관련링크)
-function detail({ url, title, desc, crumbs, built, priority = 0.6, withChecklist = true }) {
+function detail({ url, title, desc, crumbs, built, priority = 0.6, withChecklist = true, canonicalUrl }) {
   const body =
     built.body +
     (withChecklist ? checklistBlock() : "") +
     faqBlock(built.faqs) +
     whwBlock(built.context) +
     relatedBlock(built.related);
-  const html = page({ url, title, desc, crumbs, faqs: built.faqs, body });
-  emit(url, html, { priority });
+  const indexed = willIndex({ url, body, canonicalUrl });
+  const html = page({ url, title, desc, crumbs, faqs: built.faqs, body, canonicalUrl });
+  // 도어웨이 검사는 실제 색인되는 페이지의 고유 본문(built.body)만 비교
+  //  → noindex 얇은 허브(역/터미널)·canonical 통합 페이지는 제외
+  if (indexed) corpus.push({ url, text: visibleText(built.body) });
+  emit(url, html, { priority, index: indexed });
 }
 
 const HOME_CRUMB = { name: "강원도 홈", url: "/gangwon/" };
@@ -190,6 +198,23 @@ for (const s of STATIONS) {
 }
 
 // ---------------------------------------------------------------------------
+// 7-b) 핵심 생활권 (life zone)
+//   index:false 인 얇은 외곽 생활권은 상위 시·군으로 canonical 통합(도어웨이 방지)
+// ---------------------------------------------------------------------------
+for (const z of LIFE_ZONES) {
+  const city = cityBySlug[z.city];
+  const area = AREAS.find((a) => a.slug === city.area);
+  const canonicalUrl = z.index ? undefined : `/gangwon/${city.slug}/`;
+  detail({
+    url: `/gangwon/life/${z.slug}/`,
+    title: `${z.name} 출장마사지 이용 안내｜${city.name} 생활권`,
+    desc: clampDesc(`${z.name} 생활권과 숙소 이용 기준·이동 확인 안내.`),
+    crumbs: [HOME_CRUMB, { name: area.name, url: `/gangwon/area/${area.slug}/` }, { name: city.name, url: `/gangwon/${city.slug}/` }, { name: z.name, url: `/gangwon/life/${z.slug}/` }],
+    built: lifeBody(z), priority: z.index ? 0.7 : 0.4, withChecklist: true, canonicalUrl,
+  });
+}
+
+// ---------------------------------------------------------------------------
 // 8) 정적 페이지: 작성자·검수자 / 문의 / 사이트맵 페이지
 // ---------------------------------------------------------------------------
 const authorBody = `
@@ -243,6 +268,7 @@ emit("/gangwon/contact/", page({
 const smSections = [
   { h: "7대 광역 생활권", items: AREAS.map((a) => ({ url: `/gangwon/area/${a.slug}/`, n: a.name })) },
   { h: "시·군 안내", items: CITIES.map((c) => ({ url: `/gangwon/${c.slug}/`, n: c.name })) },
+  { h: "핵심 생활권", items: LIFE_ZONES.filter((z) => z.index).map((z) => ({ url: `/gangwon/life/${z.slug}/`, n: z.name })) },
   { h: "이용 장소", items: USE_PAGES.map((u) => ({ url: `/gangwon/use/${u.slug}/`, n: u.name })) },
   { h: "예약 전 확인", items: CHECK_PAGES.map((k) => ({ url: `/gangwon/check/${k.slug}/`, n: k.name })) },
   { h: "교통 거점", items: STATIONS.map((s) => ({ url: `/gangwon/station/${s.slug}/`, n: s.name })) },
@@ -272,4 +298,38 @@ writeFileSync(join(ROOT, "sitemap.xml"),
 writeFileSync(join(ROOT, "robots.txt"),
   `User-agent: *\nAllow: /\n\nSitemap: ${SITE.domain}/sitemap.xml\n`);
 
+// ---------------------------------------------------------------------------
+// 10) 근접 중복(도어웨이) 검사 — 단독 색인 페이지 본문 간 Jaccard 유사도
+//     지역명만 바꾼 복붙(도어웨이)이 있으면 높은 유사도로 드러난다.
+// ---------------------------------------------------------------------------
+function shingles(text, n = 3) {
+  const toks = text.split(/\s+/).filter((t) => t.length > 1);
+  const set = new Set();
+  for (let i = 0; i + n <= toks.length; i++) set.add(toks.slice(i, i + n).join(" "));
+  return set;
+}
+function jaccard(a, b) {
+  let inter = 0;
+  for (const s of a) if (b.has(s)) inter++;
+  return inter / (a.size + b.size - inter || 1);
+}
+const shings = corpus.map((c) => ({ url: c.url, s: shingles(c.text) }));
+const WARN = 0.35;
+const pairs = [];
+for (let i = 0; i < shings.length; i++)
+  for (let j = i + 1; j < shings.length; j++) {
+    const sim = jaccard(shings[i].s, shings[j].s);
+    if (sim >= WARN) pairs.push({ a: shings[i].url, b: shings[j].url, sim });
+  }
+pairs.sort((x, y) => y.sim - x.sim);
+
 console.log(`✅ 빌드 완료 — 색인 페이지 ${written.length}개, sitemap.xml / robots.txt 생성`);
+console.log(`🔎 도어웨이 검사 — 단독 색인 본문 ${corpus.length}개, 3-그램 Jaccard ≥ ${WARN} 페어: ${pairs.length}`);
+if (pairs.length) {
+  for (const p of pairs.slice(0, 12)) console.log(`   ⚠️  ${p.sim.toFixed(2)}  ${p.a}  ↔  ${p.b}`);
+  console.log("   → 위 페어는 본문이 유사합니다. 고유 콘텐츠로 차별화하거나 canonical 통합을 검토하세요.");
+} else {
+  console.log("   ✓ 근접 중복 없음 (지역명 복붙형 도어웨이 미탐지)");
+}
+const maxSim = shings.length > 1 ? Math.max(...(() => { const arr=[]; for(let i=0;i<shings.length;i++)for(let j=i+1;j<shings.length;j++)arr.push(jaccard(shings[i].s,shings[j].s)); return arr.length?arr:[0]; })()) : 0;
+console.log(`   최고 유사도: ${maxSim.toFixed(3)}`);

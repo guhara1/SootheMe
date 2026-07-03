@@ -21,10 +21,6 @@
   <url><loc>https://gandago.co.kr/gangwon/yangyang-gun/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://gandago.co.kr/gangwon/goseong-gun/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://gandago.co.kr/gangwon/hoengseong-gun/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://gandago.co.kr/gangwon/inje-gun/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://gandago.co.kr/gangwon/cheorwon-gun/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://gandago.co.kr/gangwon/hwacheon-gun/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://gandago.co.kr/gangwon/yanggu-gun/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://gandago.co.kr/gangwon/yeongwol-gun/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://gandago.co.kr/gangwon/use/hotel/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://gandago.co.kr/gangwon/use/pension/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -52,20 +48,6 @@
   <url><loc>https://gandago.co.kr/gangwon/check/privacy/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://gandago.co.kr/gangwon/check/service-policy/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://gandago.co.kr/gangwon/check/customer-notice/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://gandago.co.kr/gangwon/station/chuncheon-station/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://gandago.co.kr/gangwon/station/namchuncheon-station/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://gandago.co.kr/gangwon/station/wonju-station/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://gandago.co.kr/gangwon/station/manjong-station/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://gandago.co.kr/gangwon/station/gangneung-station/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://gandago.co.kr/gangwon/station/donghae-station/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://gandago.co.kr/gangwon/station/mukho-station/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://gandago.co.kr/gangwon/station/jeongdongjin-station/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://gandago.co.kr/gangwon/station/pyeongchang-station/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://gandago.co.kr/gangwon/station/jinbu-station/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://gandago.co.kr/gangwon/station/sokcho-terminal/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://gandago.co.kr/gangwon/station/gangneung-terminal/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://gandago.co.kr/gangwon/station/wonju-terminal/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://gandago.co.kr/gangwon/station/chuncheon-terminal/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://gandago.co.kr/gangwon/author/</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
   <url><loc>https://gandago.co.kr/gangwon/contact/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://gandago.co.kr/gangwon/sitemap-page/</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
