@@ -114,11 +114,36 @@ p { margin: 0 0 1em; color: var(--c-text-soft); }
 .nav__cta:hover { filter: brightness(1.05); }
 @media (max-width: 780px){ .nav__links { display: none; } }
 
-/* ---------- Hero ---------- */
-.hero { padding-block: var(--sp-7) var(--sp-6); position: relative; overflow: hidden; }
+/* ---------- Hero (배경 이미지: /assets/img/hero.jpg) ---------- */
+:root { --hero-img: url("/assets/img/hero.jpg"); }
+
+.hero {
+  padding-block: var(--sp-7) var(--sp-6); position: relative; overflow: hidden;
+  background-color: var(--c-bg-soft);
+  background-image:
+    linear-gradient(180deg, rgba(10,14,23,.58) 0%, rgba(10,14,23,.80) 62%, rgba(10,14,23,.94) 100%),
+    var(--hero-img);
+  background-size: cover; background-position: center;
+  border-bottom: 1px solid var(--c-line);
+}
 .hero h1 { font-size: clamp(1.9rem, 4.6vw, 3.1rem); font-weight: 850; margin-bottom: 18px; }
 .hero__sub { font-size: 1.1rem; color: var(--c-text-soft); max-width: 60ch; margin-bottom: 30px; }
 .hero__cta { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* ---------- Region hero (지역 페이지 상단 배너) ---------- */
+.region-hero {
+  position: relative;
+  padding-block: 66px 48px;
+  background-color: var(--c-bg-soft);
+  background-image:
+    linear-gradient(180deg, rgba(10,14,23,.60) 0%, rgba(10,14,23,.82) 66%, rgba(10,14,23,.95) 100%),
+    var(--hero-img);
+  background-size: cover; background-position: center;
+  border-bottom: 1px solid var(--c-line);
+}
+.region-hero h1 { font-size: clamp(1.7rem, 3.8vw, 2.5rem); font-weight: 850; margin: 6px 0 14px; max-width: 24ch; }
+.region-hero__sub { font-size: 1.02rem; color: var(--c-text-soft); max-width: 56ch; margin-bottom: 22px; }
+.region-hero .hero__cta { margin-top: 4px; }
 
 /* ---------- Buttons ---------- */
 .btn {

@@ -23,5 +23,7 @@ export const SITE = {
   region: "강원특별자치도",
 };
 
-// 대표 OG/썸네일 이미지 (schema image + og:image 지정용) — 실제 이미지로 교체
-export const DEFAULT_OG = "/assets/img/og-gangwon.jpg";
+// 히어로 배경 & 대표 OG 이미지 (모든 지역 페이지 히어로 + og:image + schema image)
+// ⚠️ 이 경로에 이미지를 업로드하면 전 지역 히어로에 한 번에 노출됩니다.
+export const HERO_IMAGE = "/assets/img/hero.jpg";
+export const DEFAULT_OG = "/assets/img/hero.jpg";

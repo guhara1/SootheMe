@@ -5,7 +5,13 @@
 // =============================================================================
 import { AREAS, CITIES, USE_PAGES, CHECK_PAGES, STATIONS, COURSES } from "./data.mjs";
 import { LIFE_ZONES } from "./zones.mjs";
-import { esc } from "./render.mjs";
+import { esc, regionHero } from "./render.mjs";
+
+// 지역 페이지 공통 CTA (전화예약 + 예약 전 확인)
+const HERO_CTAS = [
+  { label: "전화예약 0508-202-4719", href: "tel:0508-202-4719", accent: true },
+  { label: "예약 전 확인", href: "/check/time/" },
+];
 
 const areaBySlug = Object.fromEntries(AREAS.map((a) => [a.slug, a]));
 const cityBySlug = Object.fromEntries(CITIES.map((c) => [c.slug, c]));
@@ -174,9 +180,8 @@ export function cityBody(city) {
     : "";
 
   const body = `
+${regionHero({ eyebrow: area.name, h1: city.h1, sub: city.desc, ctas: HERO_CTAS })}
 <section class="section"><div class="wrap">
-  <span class="eyebrow">${esc(area.name)}</span>
-  <h1>${esc(city.h1)}</h1>
   <div class="prose">
     <p>${esc(feature)}</p>
     ${(city.type === "border") ? "" : `<p>${esc(typeIntro(city.type, city.name, zonesText))}</p>`}
@@ -242,9 +247,8 @@ export function areaBody(area) {
     .join("");
 
   const body = `
+${regionHero({ eyebrow: "7대 광역 생활권", h1: area.h1, sub: area.desc, ctas: HERO_CTAS })}
 <section class="section"><div class="wrap">
-  <span class="eyebrow">7대 광역 생활권</span>
-  <h1>${esc(area.h1)}</h1>
   <div class="prose">
     <p>${esc(AREA_FEATURES[area.slug] || typeCharacter(area.type, area.name))}</p>
     <p>${esc(typeIntro(area.type, area.name, zonesText))}</p>
@@ -297,9 +301,8 @@ export function useBody(use) {
     { q: "예약 시간은 어떻게 정하나요?", a: "이용 장소와 이동 거리에 따라 예약 가능 시간이 달라질 수 있어 상담 시 확인합니다." },
   ];
   const body = `
+${regionHero({ eyebrow: "이용 장소 안내", h1: `${use.name} 이용 기준`, sub: use.desc, ctas: HERO_CTAS })}
 <section class="section"><div class="wrap">
-  <span class="eyebrow">이용 장소 안내</span>
-  <h1>${esc(use.name)} 이용 기준</h1>
   <div class="prose">
     <p>${esc(STAY_TEXT[key] || "")}</p>
     <p>${esc(d.p)}</p>
@@ -339,9 +342,8 @@ export function checkBody(chk) {
     { url: "/", anchor: "강원도 홈으로" },
   ].filter((l) => l.url !== `/check/${chk.slug}/`);
   const body = `
+${regionHero({ eyebrow: "예약 전 확인", h1: chk.name, sub: chk.desc, ctas: HERO_CTAS })}
 <section class="section"><div class="wrap">
-  <span class="eyebrow">예약 전 확인</span>
-  <h1>${esc(chk.name)}</h1>
   <div class="prose" style="max-width:70ch">
     <p>${esc(t)}</p>
     <div class="notice" style="margin:22px 0">${esc(SITE_LINE)}</div>
@@ -361,9 +363,8 @@ export function stationBody(st) {
     { url: "/check/address/", anchor: "방문 주소 확인 기준" },
   ];
   const body = `
+${regionHero({ eyebrow: "교통 거점", h1: `${st.name} 인접 숙소 이용 안내`, sub: `${city.name} 생활권과 연결되는 교통 거점`, ctas: HERO_CTAS })}
 <section class="section"><div class="wrap">
-  <span class="eyebrow">교통 거점</span>
-  <h1>${esc(st.name)} 인접 숙소 이용 안내</h1>
   <div class="prose" style="max-width:70ch">
     <p>${esc(st.name)}은 ${esc(city.name)} 생활권과 연결되는 교통 거점입니다. 역·터미널 인접 숙소는 접근성이 좋은 대신, 주변 주차와 도보 동선, 야간 이용 시 출입 방식을 확인하는 것이 좋습니다. 출구별·노선별 안내 대신 실제 방문 주소와 숙소 형태를 기준으로 이용 가능 여부를 확인합니다.</p>
     <p>자세한 이용 기준은 <a href="/use/ktx-station/">KTX·터미널 인접 이용</a>과 <a href="/${city.slug}/">${esc(city.name)} 생활권 안내</a>에서 확인하세요.</p>
@@ -402,9 +403,8 @@ export function lifeBody(zone) {
 
   const h1 = `${zone.name} · 생활권과 숙소 이용 기준 안내`;
   const body = `
+${regionHero({ eyebrow: `${city.name} · ${area.name}`, h1, sub: `${zone.character} — 숙소 이용 기준 안내`, ctas: HERO_CTAS })}
 <section class="section"><div class="wrap">
-  <span class="eyebrow">${esc(city.name)} · ${esc(area.name)}</span>
-  <h1>${esc(h1)}</h1>
   <div class="prose">
     <p>${esc(zone.name)}은 ${esc(city.name)}에 속한 생활권으로, ${esc(zone.character)}입니다. ${esc(zone.note)}</p>
 

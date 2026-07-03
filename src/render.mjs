@@ -186,6 +186,16 @@ function footer() {
 </div></footer>`;
 }
 
+// ---- 지역 페이지 상단 히어로 (배경 이미지 노출) ----
+export function regionHero({ eyebrow, h1, sub, ctas = [] }) {
+  return `<section class="region-hero"><div class="wrap">
+  ${eyebrow ? `<span class="eyebrow">${esc(eyebrow)}</span>` : ""}
+  <h1>${esc(h1)}</h1>
+  ${sub ? `<p class="region-hero__sub">${esc(sub)}</p>` : ""}
+  ${ctas.length ? `<div class="hero__cta">${ctas.map((c) => `<a class="btn ${c.accent ? "btn--accent" : ""} btn--lg" href="${c.href}">${esc(c.label)}</a>`).join("")}</div>` : ""}
+</div></section>`;
+}
+
 // ---- Who / How / Why 블록 ----
 export function whwBlock(context = "강원도") {
   return `<section class="section--tight"><div class="wrap">
