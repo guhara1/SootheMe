@@ -45,40 +45,30 @@ function detail({ url, title, desc, crumbs, built, priority = 0.6, withChecklist
   emit(url, html, { priority, index: indexed });
 }
 
-const HOME_CRUMB = { name: "강원도 홈", url: "/gangwon/" };
+const HOME_CRUMB = { name: "강원도 홈", url: "/" };
 
 // ---------------------------------------------------------------------------
-// 1) 루트 → /gangwon/ 리다이렉트
-// ---------------------------------------------------------------------------
-emit("/", `<!doctype html><html lang="ko"><head><meta charset="utf-8">
-<title>${esc(SITE.name)} · ${esc(SITE.region)} 지역 안내</title>
-<meta name="description" content="${esc(clampDesc(SITE.region + " 출장마사지·홈타이 생활권별 방문 가능 지역 안내"))}">
-<link rel="canonical" href="${SITE.domain}/gangwon/">
-<meta http-equiv="refresh" content="0; url=/gangwon/">
-</head><body><p><a href="/gangwon/">강원도 지역 안내로 이동</a></p></body></html>`, { index: false });
-
-// ---------------------------------------------------------------------------
-// 2) 메인 페이지 /gangwon/
+// 1) 메인 페이지 / (루트에서 직접 서빙 — /gangwon/ 접두어 제거)
 // ---------------------------------------------------------------------------
 const areaCards = AREAS.map((a) => `
-  <a class="card card--link" href="/gangwon/area/${a.slug}/">
+  <a class="card card--link" href="/area/${a.slug}/">
     <span class="card__tag">${esc(a.includes.join(" · "))}</span>
     <h3>${esc(a.name)}</h3>
     <p>${esc(a.zones.slice(0, 3).join(", "))} 등</p>
     <span class="card__link">생활권 보기 →</span>
   </a>`).join("");
 
-const cityChips = CITIES.map((c) => `<a href="/gangwon/${c.slug}/">${esc(c.name)}</a>`).join("");
+const cityChips = CITIES.map((c) => `<a href="/${c.slug}/">${esc(c.name)}</a>`).join("");
 
 const stayFeature = [
-  { url: "/gangwon/use/beach-accommodation/", t: "강릉 경포·안목 해안 숙소" },
-  { url: "/gangwon/use/beach-accommodation/", t: "속초 대포항·설악동 숙소" },
-  { url: "/gangwon/use/beach-accommodation/", t: "양양 낙산·인구 해변 숙소" },
-  { url: "/gangwon/use/ski-resort/", t: "평창 용평·대관령 리조트" },
-  { url: "/gangwon/use/ski-resort/", t: "정선 하이원 인접 숙소" },
-  { url: "/gangwon/use/resort/", t: "홍천 비발디파크 인접 숙소" },
-  { url: "/gangwon/use/resort/", t: "횡성 웰리힐리 인접 숙소" },
-  { url: "/gangwon/use/pension/", t: "강원도 펜션·독채 숙소" },
+  { url: "/use/beach-accommodation/", t: "강릉 경포·안목 해안 숙소" },
+  { url: "/use/beach-accommodation/", t: "속초 대포항·설악동 숙소" },
+  { url: "/use/beach-accommodation/", t: "양양 낙산·인구 해변 숙소" },
+  { url: "/use/ski-resort/", t: "평창 용평·대관령 리조트" },
+  { url: "/use/ski-resort/", t: "정선 하이원 인접 숙소" },
+  { url: "/use/resort/", t: "홍천 비발디파크 인접 숙소" },
+  { url: "/use/resort/", t: "횡성 웰리힐리 인접 숙소" },
+  { url: "/use/pension/", t: "강원도 펜션·독채 숙소" },
 ].map((s) => `<a class="card card--link" href="${s.url}"><h3>${esc(s.t)}</h3><span class="card__link">이용 기준 →</span></a>`).join("");
 
 const homeFaqs = [
@@ -97,8 +87,8 @@ const homeBody = `
   <p class="hero__sub">춘천, 원주, 강릉, 속초, 평창, 정선, 동해, 삼척, 홍천 등 강원도 주요 생활권과 호텔·펜션·리조트·KTX 인접 숙소 이용 전 확인사항을 안내합니다.</p>
   <div class="hero__cta">
     <a class="btn btn--accent btn--lg" href="tel:0508-202-4719">전화예약 ${esc(SITE.phone)}</a>
-    <a class="btn btn--lg" href="/gangwon/area/gangneung-donghae-samcheok/">동해안 숙소 보기</a>
-    <a class="btn btn--lg btn--ghost" href="/gangwon/check/time/">예약 전 확인</a>
+    <a class="btn btn--lg" href="/area/gangneung-donghae-samcheok/">동해안 숙소 보기</a>
+    <a class="btn btn--lg btn--ghost" href="/check/time/">예약 전 확인</a>
   </div>
 </div></section>
 
@@ -126,8 +116,8 @@ ${pricingSection()}
 ${checklistBlock()}
 `;
 
-emit("/gangwon/", page({
-  url: "/gangwon/",
+emit("/", page({
+  url: "/",
   title: "강원도 출장마사지｜춘천·원주·강릉·속초·평창 홈타이 지역 안내",
   desc: "강원도 출장마사지·홈타이 춘천·원주·강릉·속초·평창 생활권과 숙소 이용 기준 안내.",
   crumbs: [HOME_CRUMB],
@@ -140,9 +130,9 @@ emit("/gangwon/", page({
 // ---------------------------------------------------------------------------
 for (const a of AREAS) {
   detail({
-    url: `/gangwon/area/${a.slug}/`,
+    url: `/area/${a.slug}/`,
     title: a.title, desc: a.desc,
-    crumbs: [HOME_CRUMB, { name: a.name, url: `/gangwon/area/${a.slug}/` }],
+    crumbs: [HOME_CRUMB, { name: a.name, url: `/area/${a.slug}/` }],
     built: areaBody(a), priority: 0.8, withChecklist: true,
   });
 }
@@ -153,9 +143,9 @@ for (const a of AREAS) {
 for (const c of CITIES) {
   const a = AREAS.find((x) => x.slug === c.area);
   detail({
-    url: `/gangwon/${c.slug}/`,
+    url: `/${c.slug}/`,
     title: c.title, desc: c.desc,
-    crumbs: [HOME_CRUMB, { name: a.name, url: `/gangwon/area/${a.slug}/` }, { name: c.name, url: `/gangwon/${c.slug}/` }],
+    crumbs: [HOME_CRUMB, { name: a.name, url: `/area/${a.slug}/` }, { name: c.name, url: `/${c.slug}/` }],
     built: cityBody(c), priority: c.tier === 1 ? 0.8 : 0.6,
   });
 }
@@ -165,9 +155,9 @@ for (const c of CITIES) {
 // ---------------------------------------------------------------------------
 for (const u of USE_PAGES) {
   detail({
-    url: `/gangwon/use/${u.slug}/`,
+    url: `/use/${u.slug}/`,
     title: u.title, desc: u.desc,
-    crumbs: [HOME_CRUMB, { name: "이용 장소", url: "/gangwon/use/hotel/" }, { name: u.name, url: `/gangwon/use/${u.slug}/` }],
+    crumbs: [HOME_CRUMB, { name: "이용 장소", url: "/use/hotel/" }, { name: u.name, url: `/use/${u.slug}/` }],
     built: useBody(u), priority: 0.6, withChecklist: false,
   });
 }
@@ -177,9 +167,9 @@ for (const u of USE_PAGES) {
 // ---------------------------------------------------------------------------
 for (const k of CHECK_PAGES) {
   detail({
-    url: `/gangwon/check/${k.slug}/`,
+    url: `/check/${k.slug}/`,
     title: k.title, desc: k.desc,
-    crumbs: [HOME_CRUMB, { name: "예약 전 확인", url: "/gangwon/check/time/" }, { name: k.name, url: `/gangwon/check/${k.slug}/` }],
+    crumbs: [HOME_CRUMB, { name: "예약 전 확인", url: "/check/time/" }, { name: k.name, url: `/check/${k.slug}/` }],
     built: checkBody(k), priority: 0.5, withChecklist: false,
   });
 }
@@ -189,10 +179,10 @@ for (const k of CHECK_PAGES) {
 // ---------------------------------------------------------------------------
 for (const s of STATIONS) {
   detail({
-    url: `/gangwon/station/${s.slug}/`,
+    url: `/station/${s.slug}/`,
     title: `${s.name} 인접 숙소 이용 안내｜간다GO`,
     desc: clampDesc(`${s.name} 인접 숙소 이용 시 주차·출입·예약 시간 확인 기준 안내.`),
-    crumbs: [HOME_CRUMB, { name: "교통 거점", url: "/gangwon/station/chuncheon-station/" }, { name: s.name, url: `/gangwon/station/${s.slug}/` }],
+    crumbs: [HOME_CRUMB, { name: "교통 거점", url: "/station/chuncheon-station/" }, { name: s.name, url: `/station/${s.slug}/` }],
     built: stationBody(s), priority: 0.5, withChecklist: false,
   });
 }
@@ -204,12 +194,12 @@ for (const s of STATIONS) {
 for (const z of LIFE_ZONES) {
   const city = cityBySlug[z.city];
   const area = AREAS.find((a) => a.slug === city.area);
-  const canonicalUrl = z.index ? undefined : `/gangwon/${city.slug}/`;
+  const canonicalUrl = z.index ? undefined : `/${city.slug}/`;
   detail({
-    url: `/gangwon/life/${z.slug}/`,
+    url: `/life/${z.slug}/`,
     title: `${z.name} 출장마사지 이용 안내｜${city.name} 생활권`,
     desc: clampDesc(`${z.name} 생활권과 숙소 이용 기준·이동 확인 안내.`),
-    crumbs: [HOME_CRUMB, { name: area.name, url: `/gangwon/area/${area.slug}/` }, { name: city.name, url: `/gangwon/${city.slug}/` }, { name: z.name, url: `/gangwon/life/${z.slug}/` }],
+    crumbs: [HOME_CRUMB, { name: area.name, url: `/area/${area.slug}/` }, { name: city.name, url: `/${city.slug}/` }, { name: z.name, url: `/life/${z.slug}/` }],
     built: lifeBody(z), priority: z.index ? 0.7 : 0.4, withChecklist: true, canonicalUrl,
   });
 }
@@ -234,10 +224,10 @@ const authorBody = `
     <p>상호 ${esc(SITE.name)} · 전화예약 <a href="tel:0508-202-4719">${esc(SITE.phone)}</a></p>
   </div>
 </div></section>`;
-emit("/gangwon/author/", page({
-  url: "/gangwon/author/", title: "작성자·검수자 안내｜간다GO",
+emit("/author/", page({
+  url: "/author/", title: "작성자·검수자 안내｜간다GO",
   desc: clampDesc("간다GO 지역 안내 콘텐츠 작성·검수 원칙과 운영 기준 안내."),
-  crumbs: [HOME_CRUMB, { name: "작성자·검수자 안내", url: "/gangwon/author/" }],
+  crumbs: [HOME_CRUMB, { name: "작성자·검수자 안내", url: "/author/" }],
   body: authorBody + whwBlock("강원도"),
 }), { priority: 0.4 });
 
@@ -251,27 +241,27 @@ const contactBody = `
       <strong>상호</strong> ${esc(SITE.name)}<br>
       <strong>전화예약</strong> <a href="tel:0508-202-4719">${esc(SITE.phone)}</a>
     </div>
-    <p>예약 전에는 <a href="/gangwon/check/address/">방문 주소 확인</a>, <a href="/gangwon/check/time/">예약 가능 시간</a>, <a href="/gangwon/check/service-policy/">불법·선정적 서비스 불가 안내</a>를 함께 확인해 주세요.</p>
+    <p>예약 전에는 <a href="/check/address/">방문 주소 확인</a>, <a href="/check/time/">예약 가능 시간</a>, <a href="/check/service-policy/">불법·선정적 서비스 불가 안내</a>를 함께 확인해 주세요.</p>
     <div class="hero__cta" style="margin-top:24px">
       <a class="btn btn--accent btn--lg" href="tel:0508-202-4719">전화예약 ${esc(SITE.phone)}</a>
     </div>
   </div>
 </div></section>`;
-emit("/gangwon/contact/", page({
-  url: "/gangwon/contact/", title: "문의하기｜간다GO 강원도 지역 안내",
+emit("/contact/", page({
+  url: "/contact/", title: "문의하기｜간다GO 강원도 지역 안내",
   desc: clampDesc(`간다GO 강원도 지역 안내 예약·문의 전화 ${SITE.phone}.`),
-  crumbs: [HOME_CRUMB, { name: "문의하기", url: "/gangwon/contact/" }],
+  crumbs: [HOME_CRUMB, { name: "문의하기", url: "/contact/" }],
   body: contactBody,
 }), { priority: 0.6 });
 
 // HTML 사이트맵 페이지
 const smSections = [
-  { h: "7대 광역 생활권", items: AREAS.map((a) => ({ url: `/gangwon/area/${a.slug}/`, n: a.name })) },
-  { h: "시·군 안내", items: CITIES.map((c) => ({ url: `/gangwon/${c.slug}/`, n: c.name })) },
-  { h: "핵심 생활권", items: LIFE_ZONES.filter((z) => z.index).map((z) => ({ url: `/gangwon/life/${z.slug}/`, n: z.name })) },
-  { h: "이용 장소", items: USE_PAGES.map((u) => ({ url: `/gangwon/use/${u.slug}/`, n: u.name })) },
-  { h: "예약 전 확인", items: CHECK_PAGES.map((k) => ({ url: `/gangwon/check/${k.slug}/`, n: k.name })) },
-  { h: "교통 거점", items: STATIONS.map((s) => ({ url: `/gangwon/station/${s.slug}/`, n: s.name })) },
+  { h: "7대 광역 생활권", items: AREAS.map((a) => ({ url: `/area/${a.slug}/`, n: a.name })) },
+  { h: "시·군 안내", items: CITIES.map((c) => ({ url: `/${c.slug}/`, n: c.name })) },
+  { h: "핵심 생활권", items: LIFE_ZONES.filter((z) => z.index).map((z) => ({ url: `/life/${z.slug}/`, n: z.name })) },
+  { h: "이용 장소", items: USE_PAGES.map((u) => ({ url: `/use/${u.slug}/`, n: u.name })) },
+  { h: "예약 전 확인", items: CHECK_PAGES.map((k) => ({ url: `/check/${k.slug}/`, n: k.name })) },
+  { h: "교통 거점", items: STATIONS.map((s) => ({ url: `/station/${s.slug}/`, n: s.name })) },
 ];
 const smBody = `
 <section class="section"><div class="wrap">
@@ -279,10 +269,10 @@ const smBody = `
   <h1>전체 지역·페이지 보기</h1>
   ${smSections.map((s) => `<h2>${esc(s.h)}</h2><div class="related" style="margin-bottom:24px">${s.items.map((i) => `<a href="${i.url}">${esc(i.n)}</a>`).join("")}</div>`).join("")}
 </div></section>`;
-emit("/gangwon/sitemap-page/", page({
-  url: "/gangwon/sitemap-page/", title: "사이트맵｜간다GO 강원도 지역 안내",
+emit("/sitemap-page/", page({
+  url: "/sitemap-page/", title: "사이트맵｜간다GO 강원도 지역 안내",
   desc: clampDesc("간다GO 강원도 지역 안내 전체 페이지·지역 목록 사이트맵."),
-  crumbs: [HOME_CRUMB, { name: "사이트맵", url: "/gangwon/sitemap-page/" }],
+  crumbs: [HOME_CRUMB, { name: "사이트맵", url: "/sitemap-page/" }],
   body: smBody,
 }), { priority: 0.3 });
 

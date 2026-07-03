@@ -26,7 +26,8 @@ src/
   content.mjs   지역 타입별 본문 조합기 + 시·군/권역별 고유 성격(도어웨이 방지)
   build.mjs     전체 빌드 오케스트레이션 + 근접 중복(도어웨이) 검사
 assets/css/main.css   토큰 + 컴포넌트 오버레이
-gangwon/**            생성된 페이지(URL 구조 = 디렉터리 구조)
+index.html            메인 페이지(루트에서 직접 서빙)
+area/ · use/ · check/ · life/ · station/ · <시군slug>/   생성된 페이지(URL = 디렉터리 구조)
 sitemap.xml, robots.txt
 ```
 
@@ -57,12 +58,12 @@ sitemap.xml, robots.txt
 
 ## 페이지 커버리지
 
-- 메인 `/gangwon/`
-- 7대 광역 생활권 `/gangwon/area/*`
-- 18개 시·군 `/gangwon/{slug}/` (1차 색인 우선 12 + 2차, 소규모 접경 4곳 noindex)
-- 핵심 생활권 `/gangwon/life/*` (27개 — 검색 수요 약한 곳은 상위 시·군 canonical)
-- 이용 장소 `/gangwon/use/*` · 예약 전 확인 `/gangwon/check/*`
-- 교통 거점 `/gangwon/station/*` (noindex 허브)
+- 메인 `/`
+- 7대 광역 생활권 `/area/*`
+- 18개 시·군 `/{slug}/` (1차 색인 우선 12 + 2차, 소규모 접경 4곳 noindex)
+- 핵심 생활권 `/life/*` (27개 — 검색 수요 약한 곳은 상위 시·군 canonical)
+- 이용 장소 `/use/*` · 예약 전 확인 `/check/*`
+- 교통 거점 `/station/*` (noindex 허브)
 - 운영: `author` · `contact` · `sitemap-page` · `privacy` · `service-policy`
 
 > **도어웨이 안내**: 스펙에 있던 리조트·해안 "숙소 이용" 상세 페이지(예: `용평 리조트 숙소`, `경포 해안 숙소`)는 같은 지점을 다루는 생활권 페이지와 **중복(도어웨이)** 이 되므로 생성하지 않았습니다. 지점 콘텐츠는 생활권 페이지 하나로, 숙소 유형 가이드는 `use` 페이지 하나로 유지하고 상호 링크합니다.

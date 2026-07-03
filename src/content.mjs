@@ -126,7 +126,7 @@ export function pricingSection() {
       <a class="btn ${c.feature ? "btn--accent" : "btn--ghost"} btn--lg" style="width:100%" href="tel:0508-202-4719">예약 문의</a>
     </div>`).join("")}
   </div>
-  <p class="muted" style="margin-top:22px;font-size:.9rem">지역·예약 시간대·이동 거리에 따라 상담 시 최종 확인됩니다. <a href="/gangwon/check/travel-fee/">상세 요금 안내 보기 →</a></p>
+  <p class="muted" style="margin-top:22px;font-size:.9rem">지역·예약 시간대·이동 거리에 따라 상담 시 최종 확인됩니다. <a href="/check/travel-fee/">상세 요금 안내 보기 →</a></p>
 </div></section>`;
 }
 
@@ -142,11 +142,11 @@ export function cityBody(city) {
   // 롱테일 내부링크: 같은 권역 다른 시군 + 이용 장소 + 예약 확인
   const siblings = area.cities.filter((s) => s !== city.slug).map((s) => cityBySlug[s]).filter(Boolean);
   const related = [
-    ...siblings.map((s) => ({ url: `/gangwon/${s.slug}/`, anchor: `${s.name} ${s.zones[0]} 숙소 이용 안내` })),
-    { url: `/gangwon/area/${area.slug}/`, anchor: `${area.name} 생활권 전체 보기` },
-    ...[...new Set(city.stay)].slice(0, 2).map((s) => ({ url: `/gangwon/use/${s}/`, anchor: `${USE_PAGES.find((u) => u.slug === s)?.name} 이용 기준 확인` })),
-    { url: "/gangwon/check/address/", anchor: `${city.name} 방문 주소 확인 기준` },
-    { url: "/gangwon/check/winter-road/", anchor: "겨울철 도로·날씨 확인 안내" },
+    ...siblings.map((s) => ({ url: `/${s.slug}/`, anchor: `${s.name} ${s.zones[0]} 숙소 이용 안내` })),
+    { url: `/area/${area.slug}/`, anchor: `${area.name} 생활권 전체 보기` },
+    ...[...new Set(city.stay)].slice(0, 2).map((s) => ({ url: `/use/${s}/`, anchor: `${USE_PAGES.find((u) => u.slug === s)?.name} 이용 기준 확인` })),
+    { url: "/check/address/", anchor: `${city.name} 방문 주소 확인 기준` },
+    { url: "/check/winter-road/", anchor: "겨울철 도로·날씨 확인 안내" },
   ];
 
   const faqs = [
@@ -163,7 +163,7 @@ export function cityBody(city) {
     ? `대표 지점으로는 <strong>${landmarks.slice(0, 6).map(esc).join(", ")}</strong> 등이 있어, 방문 주소가 어느 지점과 가까운지에 따라 이동 동선과 주차 여건이 달라집니다.`
     : `${esc(city.name)} 안에서도 상권 중심과 외곽 주거지는 이동 동선과 주차 여건이 다릅니다.`;
   const lifeLinks = cityZones.filter((z) => z.index).slice(0, 4)
-    .map((z) => `<a href="/gangwon/life/${z.slug}/">${esc(z.name)}</a>`).join(", ");
+    .map((z) => `<a href="/life/${z.slug}/">${esc(z.name)}</a>`).join(", ");
   const lifeLine = lifeLinks
     ? `세부 생활권은 ${lifeLinks} 페이지에서 각각의 이용 기준을 확인할 수 있습니다.`
     : "";
@@ -190,16 +190,16 @@ export function cityBody(city) {
 
     <h2>숙소 유형별 이용 기준</h2>
     ${(city.type === "border")
-      ? `<p>${esc(city.name)}에서는 ${esc([...new Set(city.stay)].map((s) => USE_PAGES.find((u) => u.slug === s)?.name).filter(Boolean).join(", "))} 기준을 주로 확인합니다. 접경·외곽 특성상 숙소 유형보다 정확한 주소와 진입 가능 여부가 먼저이며, 세부 기준은 <a href="/gangwon/use/outer-area/">외곽 지역 이용</a>과 <a href="/gangwon/use/border-area/">군부대·접경권 인접 이용</a> 페이지에서 확인할 수 있습니다.</p>`
+      ? `<p>${esc(city.name)}에서는 ${esc([...new Set(city.stay)].map((s) => USE_PAGES.find((u) => u.slug === s)?.name).filter(Boolean).join(", "))} 기준을 주로 확인합니다. 접경·외곽 특성상 숙소 유형보다 정확한 주소와 진입 가능 여부가 먼저이며, 세부 기준은 <a href="/use/outer-area/">외곽 지역 이용</a>과 <a href="/use/border-area/">군부대·접경권 인접 이용</a> 페이지에서 확인할 수 있습니다.</p>`
       : `<p>${esc(city.name)}에서 자주 이용되는 숙소 유형은 아래와 같으며, 유형마다 확인 항목이 다릅니다.</p>\n    <ul>${stayText}</ul>`}
 
     <h2>외곽·산간·겨울철 이동 기준</h2>
     ${(city.type === "border") && landmarks.length
-      ? `<p>${esc(city.name)}은 ${esc(landmarks.slice(0, 3).join(", "))} 방면처럼 지점에 따라 진입 도로와 이동 거리가 크게 벌어집니다. 특히 ${esc(landmarks[0])} 주변과 외곽 방향은 도심 기준과 이동 시간이 달라, 예약 시 정확한 방문 주소와 진입 가능 여부, 야간 이동 가능 시간을 먼저 확인하는 편이 정확합니다. 겨울철에는 도로 결빙으로 이동 시간이 더 달라질 수 있어 <a href="/gangwon/check/winter-road/">겨울철 도로·날씨 확인</a> 기준을 함께 봅니다. 검색 수요가 약한 세부 읍면은 얇은 페이지를 만들지 않고 이 시·군 안내 또는 <a href="/gangwon/use/outer-area/">외곽 지역 이용</a> 기준으로 통합해 관리합니다.</p>`
-      : `<p>${esc(typeMobility(city.type, city.name))} 자세한 확인 항목은 <a href="/gangwon/check/winter-road/">겨울철 도로·날씨 확인</a>과 <a href="/gangwon/check/night-travel/">야간 이동 가능 여부</a> 페이지에서 안내합니다.</p>`}
+      ? `<p>${esc(city.name)}은 ${esc(landmarks.slice(0, 3).join(", "))} 방면처럼 지점에 따라 진입 도로와 이동 거리가 크게 벌어집니다. 특히 ${esc(landmarks[0])} 주변과 외곽 방향은 도심 기준과 이동 시간이 달라, 예약 시 정확한 방문 주소와 진입 가능 여부, 야간 이동 가능 시간을 먼저 확인하는 편이 정확합니다. 겨울철에는 도로 결빙으로 이동 시간이 더 달라질 수 있어 <a href="/check/winter-road/">겨울철 도로·날씨 확인</a> 기준을 함께 봅니다. 검색 수요가 약한 세부 읍면은 얇은 페이지를 만들지 않고 이 시·군 안내 또는 <a href="/use/outer-area/">외곽 지역 이용</a> 기준으로 통합해 관리합니다.</p>`
+      : `<p>${esc(typeMobility(city.type, city.name))} 자세한 확인 항목은 <a href="/check/winter-road/">겨울철 도로·날씨 확인</a>과 <a href="/check/night-travel/">야간 이동 가능 여부</a> 페이지에서 안내합니다.</p>`}
 
     <h2>예약 전 확인 요약</h2>
-    <p>방문 주소와 건물 형태, 공동현관·객실 출입 방식, 주차 가능 여부, 예약 가능 시간과 변경 기준, 그리고 <a href="/gangwon/check/privacy/">개인정보 처리 기준</a>을 확인합니다. 확인이 끝나면 <a href="tel:0508-202-4719">전화예약 0508-202-4719</a>로 방문 가능 여부를 안내받을 수 있습니다. ${esc(SITE_LINE)}</p>
+    <p>방문 주소와 건물 형태, 공동현관·객실 출입 방식, 주차 가능 여부, 예약 가능 시간과 변경 기준, 그리고 <a href="/check/privacy/">개인정보 처리 기준</a>을 확인합니다. 확인이 끝나면 <a href="tel:0508-202-4719">전화예약 0508-202-4719</a>로 방문 가능 여부를 안내받을 수 있습니다. ${esc(SITE_LINE)}</p>
   </div>
 </div></section>`;
 
@@ -217,7 +217,7 @@ export function areaBody(area) {
     .filter(Boolean)
     .join(", ");
   const cityCards = cities.map((c) => `
-    <a class="card card--link" href="/gangwon/${c.slug}/">
+    <a class="card card--link" href="/${c.slug}/">
       <span class="card__tag">${esc(c.zones[0])}</span>
       <h3>${esc(c.name)}</h3>
       <p>${esc(c.desc)}</p>
@@ -225,9 +225,9 @@ export function areaBody(area) {
     </a>`).join("");
 
   const related = [
-    ...cities.map((c) => ({ url: `/gangwon/${c.slug}/`, anchor: `${c.name} ${c.zones[0]} 이용 안내` })),
-    { url: "/gangwon/", anchor: "강원도 7대 생활권 전체 보기" },
-    { url: "/gangwon/check/time/", anchor: "예약 가능 시간 확인" },
+    ...cities.map((c) => ({ url: `/${c.slug}/`, anchor: `${c.name} ${c.zones[0]} 이용 안내` })),
+    { url: "/", anchor: "강원도 7대 생활권 전체 보기" },
+    { url: "/check/time/", anchor: "예약 가능 시간 확인" },
   ];
 
   const faqs = [
@@ -258,7 +258,7 @@ export function areaBody(area) {
     <p>${esc(area.name)}에서 주로 이용되는 숙소는 ${esc(stayNames)}입니다. ${esc(typeMobility(area.type, area.name))} 같은 권역이라도 숙소 유형에 따라 확인 항목이 다르므로, 아래 시·군 카드에서 실제 이용 장소를 선택해 세부 이용 기준을 확인하세요.</p>
 
     <h2>이 권역을 이용할 때 확인할 점</h2>
-    <p>${esc(area.name)}에서는 예약 전 방문 주소와 건물 형태, 공동현관·객실 출입 방식, 주차 가능 여부, 외곽·야간 이동 가능 시간을 확인하는 것이 좋습니다. 겨울철에는 도로 상황에 따라 이동 시간이 달라질 수 있어 <a href="/gangwon/check/winter-road/">겨울철 도로·날씨 확인</a> 기준을 함께 안내합니다. 검색 수요가 약한 외곽 읍면은 얇은 페이지를 늘리지 않고 상위 생활권 또는 숙소 유형 페이지로 연결하며, 불법·선정적 서비스는 제공·안내하지 않고 방문 여부는 실제 주소·예약 조건 확인 후 안내합니다.</p>
+    <p>${esc(area.name)}에서는 예약 전 방문 주소와 건물 형태, 공동현관·객실 출입 방식, 주차 가능 여부, 외곽·야간 이동 가능 시간을 확인하는 것이 좋습니다. 겨울철에는 도로 상황에 따라 이동 시간이 달라질 수 있어 <a href="/check/winter-road/">겨울철 도로·날씨 확인</a> 기준을 함께 안내합니다. 검색 수요가 약한 외곽 읍면은 얇은 페이지를 늘리지 않고 상위 생활권 또는 숙소 유형 페이지로 연결하며, 불법·선정적 서비스는 제공·안내하지 않고 방문 여부는 실제 주소·예약 조건 확인 후 안내합니다.</p>
   </div>
   <div class="grid grid--3" style="margin-top:26px">${cityCards}</div>
 </div></section>`;
@@ -288,9 +288,9 @@ export function useBody(use) {
   const d = USE_DETAIL[key] || { p: STAY_TEXT[key] || "", li: ["방문 주소", "출입 방식", "주차·진입", "예약 시간"] };
   const relatedCities = CITIES.filter((c) => c.stay.includes(key)).slice(0, 6);
   const related = [
-    ...relatedCities.map((c) => ({ url: `/gangwon/${c.slug}/`, anchor: `${c.name} ${use.name} 이용 안내` })),
-    { url: "/gangwon/check/address/", anchor: "방문 주소 확인 기준" },
-    { url: "/gangwon/check/building-access/", anchor: "건물 출입 방식 확인" },
+    ...relatedCities.map((c) => ({ url: `/${c.slug}/`, anchor: `${c.name} ${use.name} 이용 안내` })),
+    { url: "/check/address/", anchor: "방문 주소 확인 기준" },
+    { url: "/check/building-access/", anchor: "건물 출입 방식 확인" },
   ];
   const faqs = [
     { q: `${use.name} 시 무엇을 먼저 확인하나요?`, a: STAY_TEXT[key] || "방문 주소, 출입 방식, 주차, 예약 가능 시간을 먼저 확인합니다." },
@@ -305,7 +305,7 @@ export function useBody(use) {
     <p>${esc(d.p)}</p>
     <h2>${esc(use.name)} 확인 항목</h2>
     <ul>${d.li.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
-    <p>${esc(SITE_LINE)} 자세한 기준은 <a href="/gangwon/check/address/">방문 주소 확인</a>과 <a href="/gangwon/check/time/">예약 가능 시간</a> 페이지에서 확인할 수 있습니다.</p>
+    <p>${esc(SITE_LINE)} 자세한 기준은 <a href="/check/address/">방문 주소 확인</a>과 <a href="/check/time/">예약 가능 시간</a> 페이지에서 확인할 수 있습니다.</p>
   </div>
 </div></section>`;
   return { body, faqs, related, context: use.name };
@@ -332,12 +332,12 @@ const CHECK_TEXT = {
 export function checkBody(chk) {
   const t = CHECK_TEXT[chk.slug] || "";
   const related = [
-    { url: "/gangwon/check/address/", anchor: "방문 주소 확인 기준" },
-    { url: "/gangwon/check/time/", anchor: "예약 가능 시간 확인" },
-    { url: "/gangwon/check/privacy/", anchor: "개인정보 처리 기준" },
-    { url: "/gangwon/check/service-policy/", anchor: "불법·선정적 서비스 불가 안내" },
-    { url: "/gangwon/", anchor: "강원도 홈으로" },
-  ].filter((l) => l.url !== `/gangwon/check/${chk.slug}/`);
+    { url: "/check/address/", anchor: "방문 주소 확인 기준" },
+    { url: "/check/time/", anchor: "예약 가능 시간 확인" },
+    { url: "/check/privacy/", anchor: "개인정보 처리 기준" },
+    { url: "/check/service-policy/", anchor: "불법·선정적 서비스 불가 안내" },
+    { url: "/", anchor: "강원도 홈으로" },
+  ].filter((l) => l.url !== `/check/${chk.slug}/`);
   const body = `
 <section class="section"><div class="wrap">
   <span class="eyebrow">예약 전 확인</span>
@@ -345,7 +345,7 @@ export function checkBody(chk) {
   <div class="prose" style="max-width:70ch">
     <p>${esc(t)}</p>
     <div class="notice" style="margin:22px 0">${esc(SITE_LINE)}</div>
-    <p>예약 전 확인이 끝나면 <a href="tel:0508-202-4719">전화예약 ${esc("0508-202-4719")}</a> 또는 <a href="/gangwon/contact/">문의하기</a>에서 방문 가능 여부를 확인할 수 있습니다.</p>
+    <p>예약 전 확인이 끝나면 <a href="tel:0508-202-4719">전화예약 ${esc("0508-202-4719")}</a> 또는 <a href="/contact/">문의하기</a>에서 방문 가능 여부를 확인할 수 있습니다.</p>
   </div>
 </div></section>`;
   const faqs = [];
@@ -356,9 +356,9 @@ export function checkBody(chk) {
 export function stationBody(st) {
   const city = cityBySlug[st.city];
   const related = [
-    { url: `/gangwon/${city.slug}/`, anchor: `${city.name} 생활권 이용 안내` },
-    { url: `/gangwon/use/ktx-station/`, anchor: "KTX·터미널 인접 숙소 이용 기준" },
-    { url: "/gangwon/check/address/", anchor: "방문 주소 확인 기준" },
+    { url: `/${city.slug}/`, anchor: `${city.name} 생활권 이용 안내` },
+    { url: `/use/ktx-station/`, anchor: "KTX·터미널 인접 숙소 이용 기준" },
+    { url: "/check/address/", anchor: "방문 주소 확인 기준" },
   ];
   const body = `
 <section class="section"><div class="wrap">
@@ -366,7 +366,7 @@ export function stationBody(st) {
   <h1>${esc(st.name)} 인접 숙소 이용 안내</h1>
   <div class="prose" style="max-width:70ch">
     <p>${esc(st.name)}은 ${esc(city.name)} 생활권과 연결되는 교통 거점입니다. 역·터미널 인접 숙소는 접근성이 좋은 대신, 주변 주차와 도보 동선, 야간 이용 시 출입 방식을 확인하는 것이 좋습니다. 출구별·노선별 안내 대신 실제 방문 주소와 숙소 형태를 기준으로 이용 가능 여부를 확인합니다.</p>
-    <p>자세한 이용 기준은 <a href="/gangwon/use/ktx-station/">KTX·터미널 인접 이용</a>과 <a href="/gangwon/${city.slug}/">${esc(city.name)} 생활권 안내</a>에서 확인하세요.</p>
+    <p>자세한 이용 기준은 <a href="/use/ktx-station/">KTX·터미널 인접 이용</a>과 <a href="/${city.slug}/">${esc(city.name)} 생활권 안내</a>에서 확인하세요.</p>
   </div>
 </div></section>`;
   return { body, faqs: [], related, context: st.name };
@@ -381,17 +381,17 @@ export function lifeBody(zone) {
     .map((s) => `<li><strong>${esc(USE_PAGES.find((u) => u.slug === s)?.name || s)}</strong> — ${esc(STAY_TEXT[s] || "")}</li>`)
     .join("");
   const stationLine = zone.station
-    ? `가까운 교통 거점은 <a href="/gangwon/station/${STATIONS.find((st) => st.name === zone.station)?.slug || ""}/">${esc(zone.station)}</a>이며, 역 인접 숙소는 주차와 도보 동선을 함께 확인합니다.`
+    ? `가까운 교통 거점은 <a href="/station/${STATIONS.find((st) => st.name === zone.station)?.slug || ""}/">${esc(zone.station)}</a>이며, 역 인접 숙소는 주차와 도보 동선을 함께 확인합니다.`
     : `이 생활권은 철도 거점이 가깝지 않아, ${esc(city.name)} 시내와 주요 도로를 기준으로 이동 시간을 확인합니다.`;
 
   // 롱테일 내부링크: 상위 시·군 + 같은 시 다른 생활권 + 이용 장소 + 예약 확인
   const siblings = LIFE_ZONES.filter((z) => z.city === zone.city && z.slug !== zone.slug);
   const related = [
-    { url: `/gangwon/${city.slug}/`, anchor: `${city.name} 생활권 전체 안내` },
-    ...siblings.map((z) => ({ url: `/gangwon/life/${z.slug}/`, anchor: `${z.name} 이용 기준 확인` })),
-    ...[...new Set(zone.stay)].slice(0, 2).map((s) => ({ url: `/gangwon/use/${s}/`, anchor: `${USE_PAGES.find((u) => u.slug === s)?.name} 이용 기준` })),
-    { url: `/gangwon/area/${area.slug}/`, anchor: `${area.name} 보기` },
-    { url: "/gangwon/check/address/", anchor: "방문 주소 확인 기준" },
+    { url: `/${city.slug}/`, anchor: `${city.name} 생활권 전체 안내` },
+    ...siblings.map((z) => ({ url: `/life/${z.slug}/`, anchor: `${z.name} 이용 기준 확인` })),
+    ...[...new Set(zone.stay)].slice(0, 2).map((s) => ({ url: `/use/${s}/`, anchor: `${USE_PAGES.find((u) => u.slug === s)?.name} 이용 기준` })),
+    { url: `/area/${area.slug}/`, anchor: `${area.name} 보기` },
+    { url: "/check/address/", anchor: "방문 주소 확인 기준" },
   ];
 
   const faqs = [
@@ -412,14 +412,14 @@ export function lifeBody(zone) {
     <p>${esc(zone.name)} 주변으로는 <strong>${lm.map(esc).join(", ")}</strong> 등이 대표 지점으로 꼽힙니다. 같은 생활권 안에서도 상권 중심과 외곽, 관광 지점 인근은 이동 동선과 주차 환경이 달라, 방문 주소가 어느 지점과 가까운지를 먼저 확인하는 것이 예약을 정확하게 진행하는 방법입니다.</p>
 
     <h2>위치와 접근</h2>
-    <p>${esc(zone.name)}은 상위 권역인 <a href="/gangwon/area/${area.slug}/">${esc(area.name)}</a>에 속하며, <a href="/gangwon/${city.slug}/">${esc(city.name)}</a> 안내와 함께 보면 이동 기준을 잡기 쉽습니다. ${stationLine}</p>
+    <p>${esc(zone.name)}은 상위 권역인 <a href="/area/${area.slug}/">${esc(area.name)}</a>에 속하며, <a href="/${city.slug}/">${esc(city.name)}</a> 안내와 함께 보면 이동 기준을 잡기 쉽습니다. ${stationLine}</p>
 
     <h2>숙소 유형별 이용 기준</h2>
     <p>${esc(zone.name)}에서 자주 이용되는 숙소 유형과 확인 항목은 아래와 같습니다.</p>
     <ul>${stayText}</ul>
 
     <h2>이동·예약 전 확인</h2>
-    <p>${esc(zone.name)}은 시간대와 계절에 따라 진입·주차 여건이 달라질 수 있어, 방문 주소와 건물 형태, 공동현관·객실 출입 방식, 주차 가능 여부, 예약 가능 시간을 먼저 확인합니다. 겨울철 이동이 필요한 지역이면 <a href="/gangwon/check/winter-road/">겨울철 도로·날씨 확인</a> 기준을 함께 봅니다. 확인이 끝나면 <a href="tel:0508-202-4719">전화예약 0508-202-4719</a>로 방문 가능 여부를 안내받을 수 있습니다. ${esc(SITE_LINE)}</p>
+    <p>${esc(zone.name)}은 시간대와 계절에 따라 진입·주차 여건이 달라질 수 있어, 방문 주소와 건물 형태, 공동현관·객실 출입 방식, 주차 가능 여부, 예약 가능 시간을 먼저 확인합니다. 겨울철 이동이 필요한 지역이면 <a href="/check/winter-road/">겨울철 도로·날씨 확인</a> 기준을 함께 봅니다. 확인이 끝나면 <a href="tel:0508-202-4719">전화예약 0508-202-4719</a>로 방문 가능 여부를 안내받을 수 있습니다. ${esc(SITE_LINE)}</p>
   </div>
 </div></section>`;
 

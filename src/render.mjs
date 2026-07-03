@@ -120,15 +120,15 @@ ${noindex ? '<meta name="robots" content="noindex,follow">\n' : '<meta name="rob
 // ---- 상단 내비 ----
 function nav() {
   return `<header class="nav"><div class="wrap nav__inner">
-  <a class="brand" href="/gangwon/"><span class="brand__mark">GO</span>${esc(SITE.name)}</a>
+  <a class="brand" href="/"><span class="brand__mark">GO</span>${esc(SITE.name)}</a>
   <nav class="nav__links" aria-label="주요 메뉴">
-    <a href="/gangwon/area/chuncheon-hongcheon/">춘천·원주</a>
-    <a href="/gangwon/area/gangneung-donghae-samcheok/">동해안</a>
-    <a href="/gangwon/area/pyeongchang-jeongseon-taebaek/">리조트·펜션</a>
-    <a href="/gangwon/area/sokcho-yangyang-goseong/">속초·양양</a>
-    <a href="/gangwon/area/cheorwon-hwacheon-yanggu-inje/">접경·외곽</a>
-    <a href="/gangwon/check/time/">예약 전 확인</a>
-    <a href="/gangwon/contact/">문의하기</a>
+    <a href="/area/chuncheon-hongcheon/">춘천·원주</a>
+    <a href="/area/gangneung-donghae-samcheok/">동해안</a>
+    <a href="/area/pyeongchang-jeongseon-taebaek/">리조트·펜션</a>
+    <a href="/area/sokcho-yangyang-goseong/">속초·양양</a>
+    <a href="/area/cheorwon-hwacheon-yanggu-inje/">접경·외곽</a>
+    <a href="/check/time/">예약 전 확인</a>
+    <a href="/contact/">문의하기</a>
   </nav>
   <a class="btn btn--accent btn--sm nav__cta" href="${SITE.phoneHref}">전화예약 ${esc(SITE.phone)}</a>
 </div></header>`;
@@ -151,21 +151,21 @@ function footer() {
     <div class="footer__col">
       <h4>지역 안내</h4>
       <ul>
-        <li><a href="/gangwon/">강원도 홈</a></li>
-        <li><a href="/gangwon/chuncheon-si/">춘천 생활권</a></li>
-        <li><a href="/gangwon/gangneung-si/">강릉 해안 숙소</a></li>
-        <li><a href="/gangwon/pyeongchang-gun/">평창 리조트</a></li>
-        <li><a href="/gangwon/sitemap-page/">전체 지역 보기</a></li>
+        <li><a href="/">강원도 홈</a></li>
+        <li><a href="/chuncheon-si/">춘천 생활권</a></li>
+        <li><a href="/gangneung-si/">강릉 해안 숙소</a></li>
+        <li><a href="/pyeongchang-gun/">평창 리조트</a></li>
+        <li><a href="/sitemap-page/">전체 지역 보기</a></li>
       </ul>
     </div>
 
     <div class="footer__col">
       <h4>운영 기준 · 문의</h4>
       <ul>
-        <li><a href="/gangwon/check/privacy/">개인정보 처리방침</a></li>
-        <li><a href="/gangwon/check/service-policy/">불법·선정적 서비스 불가</a></li>
-        <li><a href="/gangwon/author/">작성자·검수자 안내</a></li>
-        <li><a href="/gangwon/contact/">문의하기</a></li>
+        <li><a href="/check/privacy/">개인정보 처리방침</a></li>
+        <li><a href="/check/service-policy/">불법·선정적 서비스 불가</a></li>
+        <li><a href="/author/">작성자·검수자 안내</a></li>
+        <li><a href="/contact/">문의하기</a></li>
       </ul>
       <div class="footer__inquiry">
         <a class="btn--telegram" href="${SITE.telegramWeb}" target="_blank" rel="noopener nofollow" aria-label="웹사이트 제작문의 텔레그램">${tgIcon}웹사이트 제작문의</a>
@@ -241,7 +241,7 @@ export function relatedBlock(links, heading = "관련 지역 보기") {
 export function willIndex({ url, body, canonicalUrl }) {
   const consolidated = canonicalUrl && canonicalUrl !== url;
   if (consolidated) return false;
-  if (url === "/gangwon/" || url.match(/\/(contact|author|sitemap-page|check|use)\b/)) return true;
+  if (url === "/" || url.match(/\/(contact|author|sitemap-page|check|use)\b/)) return true;
   return visibleLen(body) >= 2000;
 }
 
