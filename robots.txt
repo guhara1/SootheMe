@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://gandago.co.kr/sitemap.xml
+Sitemap: https://sootheme.pages.dev/sitemap.xml

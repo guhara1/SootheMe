@@ -12,8 +12,8 @@ export const SITE = {
   phone: "0508-202-4719",
   phoneHref: "tel:0508-202-4719",
 
-  // 실제 운영 도메인으로 교체하세요.
-  domain: "https://gandago.co.kr",
+  // 실제 운영 도메인
+  domain: "https://sootheme.pages.dev",
 
   // 텔레그램 문의 링크 (실제 핸들로 교체하세요)
   telegramWeb: "https://t.me/gandago_web",       // 웹사이트 제작문의
