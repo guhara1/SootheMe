@@ -306,6 +306,52 @@ p { margin: 0 0 1em; color: var(--c-text-soft); }
 }
 .footer__bottom a { color: var(--c-text-muted); }
 
+/* =========================================================================
+   플로팅 전화예약 버튼 (전 페이지 우측 하단 · 오렌지 · 벨 흔들림)
+   ========================================================================= */
+.call-fab {
+  position: fixed; right: 18px; bottom: 18px; z-index: 90;
+  width: 60px; height: 60px; border-radius: 50%;
+  background: var(--grad-accent); color: #1a1206;
+  display: grid; place-items: center;
+  box-shadow: 0 12px 32px -6px rgba(249,115,22,.7), 0 4px 12px rgba(0,0,0,.35);
+  transition: transform .2s var(--ease), filter .2s var(--ease);
+}
+.call-fab:hover { color: #1a1206; filter: brightness(1.07); transform: translateY(-2px); }
+.call-fab svg {
+  width: 27px; height: 27px;
+  transform-origin: 50% 45%;
+  animation: fab-ring 2.4s ease-in-out infinite;
+}
+.call-fab::before,
+.call-fab::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  border: 2px solid rgba(249,115,22,.65);
+  animation: fab-pulse 2.4s ease-out infinite;
+  pointer-events: none;
+}
+.call-fab::after { animation-delay: 1.2s; }
+@keyframes fab-pulse {
+  0%   { transform: scale(1);    opacity: .85; }
+  70%  { transform: scale(1.75); opacity: 0; }
+  100% { transform: scale(1.75); opacity: 0; }
+}
+@keyframes fab-ring {
+  0%, 55%, 100% { transform: rotate(0); }
+  60% { transform: rotate(-16deg); }
+  65% { transform: rotate(13deg); }
+  70% { transform: rotate(-10deg); }
+  75% { transform: rotate(7deg); }
+  80% { transform: rotate(0); }
+}
+@media (max-width: 560px) {
+  .call-fab { right: 14px; bottom: 14px; width: 56px; height: 56px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .call-fab svg, .call-fab::before, .call-fab::after { animation: none; }
+  .call-fab::before, .call-fab::after { display: none; }
+}
+
 /* ---------- Utility ---------- */
 .stack > * + * { margin-top: 14px; }
 .divider { height: 1px; background: var(--c-line); margin-block: var(--sp-5); border: 0; }

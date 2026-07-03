@@ -29,16 +29,25 @@ function emit(url, html, { priority = 0.6, changefreq = "monthly", index = true 
   if (index) written.push({ url, priority, changefreq });
 }
 
-// 상세페이지 공통 조립 (본문 + 체크리스트 + FAQ + WHW + 관련링크)
+// 상세페이지 공통 조립 (본문 + 가격표 + 체크리스트 + FAQ + WHW + 관련링크)
 function detail({ url, title, desc, crumbs, built, priority = 0.6, withChecklist = true, canonicalUrl }) {
-  const body =
+  // 색인(2,000자) 판정은 가격표를 제외한 본문으로 — 전 페이지 공통 블록이
+  // 얇은 페이지를 색인 기준 위로 밀어 올리는 것을 방지(도어웨이 안전)
+  const bodyCore =
     built.body +
     (withChecklist ? checklistBlock() : "") +
     faqBlock(built.faqs) +
     whwBlock(built.context) +
     relatedBlock(built.related);
-  const indexed = willIndex({ url, body, canonicalUrl });
-  const html = page({ url, title, desc, crumbs, faqs: built.faqs, body, canonicalUrl });
+  const indexed = willIndex({ url, body: bodyCore, canonicalUrl });
+  const body =
+    built.body +
+    pricingSection() +
+    (withChecklist ? checklistBlock() : "") +
+    faqBlock(built.faqs) +
+    whwBlock(built.context) +
+    relatedBlock(built.related);
+  const html = page({ url, title, desc, crumbs, faqs: built.faqs, body, canonicalUrl, indexOverride: indexed });
   // 도어웨이 검사는 실제 색인되는 페이지의 고유 본문(built.body)만 비교
   //  → noindex 얇은 허브(역/터미널)·canonical 통합 페이지는 제외
   if (indexed) corpus.push({ url, text: visibleText(built.body) });
@@ -251,7 +260,7 @@ emit("/contact/", page({
   url: "/contact/", title: "문의하기｜간다GO 강원도 지역 안내",
   desc: clampDesc(`간다GO 강원도 지역 안내 예약·문의 전화 ${SITE.phone}.`),
   crumbs: [HOME_CRUMB, { name: "문의하기", url: "/contact/" }],
-  body: contactBody,
+  body: contactBody + pricingSection(),
 }), { priority: 0.6 });
 
 // HTML 사이트맵 페이지

@@ -127,7 +127,8 @@ function nav() {
   return `<header class="nav"><div class="wrap nav__inner">
   <a class="brand" href="/"><span class="brand__mark">GO</span>${esc(SITE.name)}</a>
   <nav class="nav__links" aria-label="주요 메뉴">
-    <a href="/area/chuncheon-hongcheon/">춘천·원주</a>
+    <a href="/area/chuncheon-hongcheon/">춘천·홍천</a>
+    <a href="/area/wonju-hoengseong/">원주·횡성</a>
     <a href="/area/gangneung-donghae-samcheok/">동해안</a>
     <a href="/area/pyeongchang-jeongseon-taebaek/">리조트·펜션</a>
     <a href="/area/sokcho-yangyang-goseong/">속초·양양</a>
@@ -141,6 +142,11 @@ function nav() {
 
 // ---- 텔레그램 아이콘 ----
 const tgIcon = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-.9.5l.3-4.7 8.6-7.8c.4-.3-.1-.5-.6-.2L6.4 13.1l-4.6-1.4c-1-.3-1-1 .2-1.5l18-6.9c.8-.3 1.6.2 1.3 1z"/></svg>`;
+
+// ---- 플로팅 전화예약 버튼 (전 페이지, 우측 하단, 벨 흔들림 애니메이션) ----
+const callFab = `<a class="call-fab" href="${SITE.phoneHref}" aria-label="전화예약 ${SITE.phone}">
+<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+</a>`;
 
 // ---- 푸터 (제작문의 / 제휴문의 오렌지 텔레그램 버튼) ----
 function footer() {
@@ -158,6 +164,7 @@ function footer() {
       <ul>
         <li><a href="/">강원도 홈</a></li>
         <li><a href="/chuncheon-si/">춘천 생활권</a></li>
+        <li><a href="/wonju-si/">원주 혁신도시·무실</a></li>
         <li><a href="/gangneung-si/">강릉 해안 숙소</a></li>
         <li><a href="/pyeongchang-gun/">평창 리조트</a></li>
         <li><a href="/sitemap-page/">전체 지역 보기</a></li>
@@ -260,9 +267,13 @@ export function willIndex({ url, body, canonicalUrl }) {
   return visibleLen(body) >= 2000;
 }
 
-export function page({ url, title, desc, image, crumbs = [], faqs = [], extraSchema = [], body, canonicalUrl }) {
+export function page({ url, title, desc, image, crumbs = [], faqs = [], extraSchema = [], body, canonicalUrl, indexOverride }) {
   desc = clampDesc(desc);
-  const noindex = !willIndex({ url, body, canonicalUrl });
+  // indexOverride: 가격표 등 전 페이지 공통 블록을 제외한 본문으로 미리 판정한 결과.
+  // (공통 블록 텍스트가 얇은 페이지를 2,000자 위로 밀어 올려 색인되는 것을 방지)
+  const noindex = indexOverride === undefined
+    ? !willIndex({ url, body, canonicalUrl })
+    : !indexOverride;
   // 색인 대상 상세페이지가 2000자 미만이면 noindex (스팸/얇은 페이지 방지)
   const graph = [
     { "@type": "WebSite", "@id": abs("/#website"), url: SITE.domain + "/", name: SITE.name, inLanguage: "ko-KR", publisher: { "@id": abs("/#organization") } },
@@ -289,6 +300,7 @@ ${crumbHtml}
 ${body}
 </main>
 ${footer()}
+${callFab}
 <script type="application/ld+json">${jsonld}</script>
 </body>
 </html>`;
