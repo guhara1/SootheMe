@@ -1,0 +1,11 @@
+{
+  "name": "gandago-gangwon",
+  "version": "1.0.0",
+  "private": true,
+  "description": "간다GO · 강원도 관광 숙소·생활권별 방문 가능 지역 안내 (정적 사이트)",
+  "type": "module",
+  "scripts": {
+    "build": "node src/build.mjs",
+    "serve": "python3 -m http.server 8080"
+  }
+}
