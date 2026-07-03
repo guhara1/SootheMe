@@ -114,8 +114,8 @@ p { margin: 0 0 1em; color: var(--c-text-soft); }
 .nav__cta:hover { filter: brightness(1.05); }
 @media (max-width: 780px){ .nav__links { display: none; } }
 
-/* ---------- Hero (배경 이미지: /assets/img/hero.jpg) ---------- */
-:root { --hero-img: url("/assets/img/hero.jpg"); }
+/* ---------- Hero (배경 이미지: /assets/img/hero.webp) ---------- */
+:root { --hero-img: url("/assets/img/hero.webp"); }
 
 .hero {
   padding-block: var(--sp-7) var(--sp-6); position: relative; overflow: hidden;

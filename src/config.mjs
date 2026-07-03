@@ -25,5 +25,5 @@ export const SITE = {
 
 // 히어로 배경 & 대표 OG 이미지 (모든 지역 페이지 히어로 + og:image + schema image)
 // ⚠️ 이 경로에 이미지를 업로드하면 전 지역 히어로에 한 번에 노출됩니다.
-export const HERO_IMAGE = "/assets/img/hero.jpg";
-export const DEFAULT_OG = "/assets/img/hero.jpg";
+export const HERO_IMAGE = "/assets/img/hero.webp";
+export const DEFAULT_OG = "/assets/img/hero.webp";
