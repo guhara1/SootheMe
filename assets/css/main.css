@@ -94,25 +94,25 @@ p { margin: 0 0 1em; color: var(--c-text-soft); }
   background: rgba(10,14,23,.72);
   border-bottom: 1px solid var(--c-line);
 }
-.nav__inner { display: flex; align-items: center; gap: 20px; height: 62px; }
-.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; color: var(--c-text); font-size: 1.05rem; }
+.nav__inner { display: flex; align-items: center; gap: 16px; height: 62px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; color: var(--c-text); font-size: 1.05rem; white-space: nowrap; flex: none; }
 .brand__mark {
   width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center;
   background: var(--grad-accent); color: #1a1206; font-weight: 900; box-shadow: var(--glow-accent);
   font-size: .78rem; letter-spacing: -.03em;
 }
-.nav__links { display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap; }
+.nav__links { display: flex; gap: 2px; margin-left: auto; white-space: nowrap; }
 .nav__links a {
-  color: var(--c-text-soft); font-weight: 600; font-size: .92rem;
-  padding: 7px 12px; border-radius: 9px;
+  color: var(--c-text-soft); font-weight: 600; font-size: .88rem;
+  padding: 7px 9px; border-radius: 9px;
 }
 .nav__links a:hover { color: var(--c-text); background: var(--c-surface-2); }
 .nav__cta {
   background: var(--grad-accent); color: #1a1206 !important; font-weight: 800 !important;
-  box-shadow: var(--glow-accent);
+  box-shadow: var(--glow-accent); flex: none;
 }
 .nav__cta:hover { filter: brightness(1.05); }
-@media (max-width: 780px){ .nav__links { display: none; } }
+@media (max-width: 960px){ .nav__links { display: none; } }
 
 /* ---------- Hero (배경 이미지: /assets/img/hero.webp) ---------- */
 :root { --hero-img: url("/assets/img/hero.webp"); }
@@ -305,6 +305,43 @@ p { margin: 0 0 1em; color: var(--c-text-soft); }
   color: var(--c-text-faint); font-size: .82rem;
 }
 .footer__bottom a { color: var(--c-text-muted); }
+
+/* ---------- 이용 후기 (가로 스크롤 카드) ---------- */
+.review__avg { color: var(--c-accent-2); font-size: 1.05rem; font-weight: 800; margin-left: 8px; }
+.review__avg small { color: var(--c-text-muted); font-weight: 600; }
+.reviews {
+  display: grid; grid-auto-flow: column; grid-auto-columns: min(320px, 82vw);
+  gap: 14px; overflow-x: auto; padding-bottom: 12px;
+  scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+}
+.reviews::-webkit-scrollbar { height: 8px; }
+.reviews::-webkit-scrollbar-thumb { background: var(--c-surface-3); border-radius: 8px; }
+.review {
+  scroll-snap-align: start; display: flex; flex-direction: column; gap: 10px;
+  padding: 20px; border-radius: var(--r-md);
+  background: var(--c-surface); border: 1px solid var(--c-line);
+}
+.review__stars { color: var(--c-accent-2); letter-spacing: 2px; font-size: .95rem; }
+.review__stars .off { color: var(--c-surface-3); }
+.review__text { font-size: .9rem; color: var(--c-text-soft); margin: 0; flex: 1; }
+.review__meta { font-size: .8rem; color: var(--c-text-faint); }
+
+/* ---------- 상황별 안내 링크 허브 (롱테일 내부링크) ---------- */
+.linkhub { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+@media (max-width: 940px){ .linkhub { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px){ .linkhub { grid-template-columns: 1fr; } }
+.linkhub__group {
+  padding: 20px; border-radius: var(--r-md);
+  background: var(--c-surface); border: 1px solid var(--c-line);
+}
+.linkhub__group h3 {
+  font-size: .82rem; color: var(--c-accent-2); text-transform: uppercase;
+  letter-spacing: .08em; margin-bottom: 12px;
+}
+.linkhub__group ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+.linkhub__group a { color: var(--c-text-soft); font-size: .9rem; display: inline-flex; gap: 7px; align-items: baseline; }
+.linkhub__group a::before { content: "→"; color: var(--c-accent-2); flex: none; }
+.linkhub__group a:hover { color: var(--c-text); }
 
 /* =========================================================================
    플로팅 전화예약 버튼 (전 페이지 우측 하단 · 오렌지 · 벨 흔들림)

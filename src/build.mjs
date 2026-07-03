@@ -10,6 +10,7 @@ import { AREAS, CITIES, USE_PAGES, CHECK_PAGES, STATIONS, COURSES } from "./data
 import { LIFE_ZONES } from "./zones.mjs";
 import {
   page, esc, whwBlock, faqBlock, checklistBlock, relatedBlock, clampDesc, visibleText, willIndex,
+  serviceSchema, reviewsBlock, linkHubBlock,
 } from "./render.mjs";
 import {
   pricingSection, cityBody, areaBody, useBody, checkBody, stationBody, lifeBody,
@@ -26,7 +27,12 @@ function emit(url, html, { priority = 0.6, changefreq = "monthly", index = true 
   const out = join(ROOT, rel);
   mkdirSync(dirname(out), { recursive: true });
   writeFileSync(out, html);
-  if (index) written.push({ url, priority, changefreq });
+  if (index) {
+    // RSS 아이템용 title/description은 생성된 HTML에서 그대로 추출(불일치 방지)
+    const title = html.match(/<title>([^<]*)<\/title>/)?.[1] ?? SITE.name;
+    const desc = html.match(/name="description" content="([^"]*)"/)?.[1] ?? "";
+    written.push({ url, priority, changefreq, title, desc });
+  }
 }
 
 // 상세페이지 공통 조립 (본문 + 가격표 + 체크리스트 + FAQ + WHW + 관련링크)
@@ -43,11 +49,13 @@ function detail({ url, title, desc, crumbs, built, priority = 0.6, withChecklist
   const body =
     built.body +
     pricingSection() +
+    reviewsBlock() +
     (withChecklist ? checklistBlock() : "") +
     faqBlock(built.faqs) +
     whwBlock(built.context) +
     relatedBlock(built.related);
-  const html = page({ url, title, desc, crumbs, faqs: built.faqs, body, canonicalUrl, indexOverride: indexed });
+  // Service 스키마(가격표+후기)는 두 블록이 실제 노출되는 페이지에만 주입
+  const html = page({ url, title, desc, crumbs, faqs: built.faqs, body, canonicalUrl, indexOverride: indexed, extraSchema: [serviceSchema()] });
   // 도어웨이 검사는 실제 색인되는 페이지의 고유 본문(built.body)만 비교
   //  → noindex 얇은 허브(역/터미널)·canonical 통합 페이지는 제외
   if (indexed) corpus.push({ url, text: visibleText(built.body) });
@@ -89,6 +97,35 @@ const homeFaqs = [
   { q: "불법·선정적 서비스도 가능한가요?", a: "불법·선정적 서비스는 제공하거나 안내하지 않습니다." },
 ];
 
+// 상황별 롱테일 내부링크 허브 (스펙 16장 '좋은 앵커텍스트' 기반)
+const HOME_LINKHUB = [
+  { h: "리조트·스키장", links: [
+    { url: "/life/pyeongchang-daegwallyeong-yongpyong/", anchor: "평창 용평·대관령 리조트 이용 전 확인" },
+    { url: "/life/jeongseon-gohan-sabuk/", anchor: "정선 고한·사북 하이원 인접 숙소 기준" },
+    { url: "/life/hongcheon-vivaldi-park/", anchor: "홍천 비발디파크 펜션 숙소 확인" },
+    { url: "/life/hoengseong-dunnae-wellihilli/", anchor: "횡성 둔내·웰리힐리 인접 숙소 확인" },
+  ]},
+  { h: "동해안 숙소", links: [
+    { url: "/life/gangneung-gyeongpo-anmok/", anchor: "강릉 경포·안목 해안 숙소 확인" },
+    { url: "/life/sokcho-daepo-seorak/", anchor: "속초 대포항·설악동 관광 숙소 안내" },
+    { url: "/life/yangyang-naksan-ingu/", anchor: "양양 낙산·인구 해변 숙소 예약 기준" },
+    { url: "/life/donghae-cheongok-mukho/", anchor: "동해 묵호·천곡 해안 숙소 이용 안내" },
+    { url: "/life/samcheok-beach-solbeach/", anchor: "삼척 쏠비치 인접 리조트 숙소 확인" },
+  ]},
+  { h: "도심·KTX 거점", links: [
+    { url: "/life/chuncheon-myeongdong-jungangro/", anchor: "춘천 명동·중앙로 호텔 숙소 이용 전 확인" },
+    { url: "/life/wonju-musil-dangye/", anchor: "원주 무실·단계 오피스텔 예약 기준" },
+    { url: "/life/wonju-bangok-innovation/", anchor: "원주 혁신도시 출장 숙소 이용 안내" },
+    { url: "/station/gangneung-station/", anchor: "강릉역 KTX 인접 숙소 이용 기준" },
+  ]},
+  { h: "외곽·계절 확인", links: [
+    { url: "/use/border-area/", anchor: "철원·화천 접경지역 외곽 이동 기준" },
+    { url: "/check/winter-road/", anchor: "강원도 겨울철 이동 확인 안내" },
+    { url: "/check/night-travel/", anchor: "야간 이동 가능 여부 확인" },
+    { url: "/check/travel-fee/", anchor: "외곽 이동비 기준 안내" },
+  ]},
+];
+
 const homeBody = `
 <section class="hero"><div class="wrap">
   <span class="eyebrow">강원특별자치도 · 방문형 웰니스 지역 안내</span>
@@ -121,7 +158,9 @@ const homeBody = `
   <div class="grid grid--4" style="margin-top:20px">${stayFeature}</div>
 </div></section>
 
+${linkHubBlock(HOME_LINKHUB)}
 ${pricingSection()}
+${reviewsBlock()}
 ${checklistBlock()}
 `;
 
@@ -131,6 +170,11 @@ emit("/", page({
   desc: "강원도 출장마사지·홈타이 춘천·원주·강릉·속초·평창 생활권과 숙소 이용 기준 안내.",
   crumbs: [HOME_CRUMB],
   faqs: homeFaqs,
+  extraSchema: [
+    serviceSchema(),
+    { "@type": "ItemList", name: "강원도 7대 생활권",
+      itemListElement: AREAS.map((a, i) => ({ "@type": "ListItem", position: i + 1, name: a.name, url: `${SITE.domain}/area/${a.slug}/` })) },
+  ],
   body: homeBody + faqBlock(homeFaqs) + whwBlock("강원도"),
 }), { priority: 1.0, changefreq: "weekly" });
 
@@ -260,7 +304,8 @@ emit("/contact/", page({
   url: "/contact/", title: "문의하기｜간다GO 강원도 지역 안내",
   desc: clampDesc(`간다GO 강원도 지역 안내 예약·문의 전화 ${SITE.phone}.`),
   crumbs: [HOME_CRUMB, { name: "문의하기", url: "/contact/" }],
-  body: contactBody + pricingSection(),
+  extraSchema: [serviceSchema()],
+  body: contactBody + pricingSection() + reviewsBlock(),
 }), { priority: 0.6 });
 
 // HTML 사이트맵 페이지
@@ -288,14 +333,41 @@ emit("/sitemap-page/", page({
 // ---------------------------------------------------------------------------
 // 9) sitemap.xml + robots.txt
 // ---------------------------------------------------------------------------
+const TODAY = new Date().toISOString().slice(0, 10);
 const urlset = written
-  .map((w) => `  <url><loc>${SITE.domain}${w.url}</loc><changefreq>${w.changefreq}</changefreq><priority>${w.priority.toFixed(1)}</priority></url>`)
+  .map((w) => `  <url><loc>${SITE.domain}${w.url}</loc><lastmod>${TODAY}</lastmod><changefreq>${w.changefreq}</changefreq><priority>${w.priority.toFixed(1)}</priority></url>`)
   .join("\n");
 writeFileSync(join(ROOT, "sitemap.xml"),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urlset}\n</urlset>\n`);
 
+// RSS 2.0 — 네이버 서치어드바이저 RSS 제출용 (구글도 사이트맵 형식으로 인식)
+const rfc822 = new Date().toUTCString();
+const xmlEsc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const rssItems = written
+  .map((w) => `  <item>
+    <title>${xmlEsc(w.title)}</title>
+    <link>${SITE.domain}${w.url}</link>
+    <guid isPermaLink="true">${SITE.domain}${w.url}</guid>
+    <description>${xmlEsc(w.desc)}</description>
+    <pubDate>${rfc822}</pubDate>
+  </item>`)
+  .join("\n");
+writeFileSync(join(ROOT, "rss.xml"),
+  `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+  <title>${xmlEsc(SITE.name)} · ${xmlEsc(SITE.region)} 지역 안내</title>
+  <link>${SITE.domain}/</link>
+  <description>${xmlEsc(SITE.tagline)}</description>
+  <language>ko</language>
+  <lastBuildDate>${rfc822}</lastBuildDate>
+${rssItems}
+</channel>
+</rss>
+`);
+
 writeFileSync(join(ROOT, "robots.txt"),
-  `User-agent: *\nAllow: /\n\nSitemap: ${SITE.domain}/sitemap.xml\n`);
+  `User-agent: *\nAllow: /\n\nSitemap: ${SITE.domain}/sitemap.xml\nSitemap: ${SITE.domain}/rss.xml\n`);
 
 // ---------------------------------------------------------------------------
 // 10) 근접 중복(도어웨이) 검사 — 단독 색인 페이지 본문 간 Jaccard 유사도

@@ -2,6 +2,7 @@
 // 간다GO · 렌더 엔진 (공통 레이아웃 / 스키마 / 푸터)
 // =============================================================================
 import { SITE, DEFAULT_OG } from "./config.mjs";
+import { COURSES, REVIEWS } from "./data.mjs";
 
 // ---- 유틸 ----
 export const esc = (s = "") =>
@@ -45,6 +46,47 @@ export function organizationSchema() {
       areaServed: "KR",
       availableLanguage: ["Korean"],
     },
+  };
+}
+
+// Service + OfferCatalog + AggregateRating + Review
+// ※ 페이지에 실제로 노출되는 가격표·후기(pricingSection/reviewsBlock)와 1:1 일치.
+//   가격표·후기가 노출되는 페이지에서만 extraSchema로 주입한다.
+export function serviceSchema() {
+  const count = REVIEWS.length;
+  const avg = (REVIEWS.reduce((s, r) => s + r.rating, 0) / count).toFixed(1);
+  return {
+    "@type": "Service",
+    "@id": abs("/#service"),
+    name: "강원도 방문형 웰니스 케어(출장마사지)",
+    serviceType: "방문형 웰니스 케어",
+    provider: { "@id": abs("/#organization") },
+    areaServed: { "@type": "AdministrativeArea", name: SITE.region },
+    hasOfferCatalog: {
+      "@type": "OfferCatalog",
+      name: "이용 코스와 요금",
+      itemListElement: COURSES.map((c) => ({
+        "@type": "Offer",
+        name: c.name,
+        description: c.desc,
+        price: c.price.replace(/,/g, ""),
+        priceCurrency: "KRW",
+      })),
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: avg,
+      bestRating: "5",
+      worstRating: "1",
+      reviewCount: count,
+    },
+    review: REVIEWS.map((r) => ({
+      "@type": "Review",
+      author: { "@type": "Person", name: r.author },
+      datePublished: r.date,
+      reviewBody: r.text,
+      reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5, worstRating: 1 },
+    })),
   };
 }
 
@@ -98,6 +140,8 @@ function head({ url, title, desc, image, noindex, canonicalUrl }) {
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}">
 <link rel="canonical" href="${canonical}">
+<meta name="naver-site-verification" content="${SITE.naverVerification}">
+<link rel="alternate" type="application/rss+xml" title="${esc(SITE.name)} RSS" href="/rss.xml">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/favicon-32.png" type="image/png" sizes="32x32">
@@ -243,6 +287,36 @@ export function checklistBlock() {
   return `<section class="section--tight"><div class="wrap">
   <h2>예약 전 확인해야 할 내용</h2>
   <ul class="checklist">${items.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
+</div></section>`;
+}
+
+// ---- 이용 후기 (노출형 — 스키마와 동일 데이터) ----
+export function reviewsBlock() {
+  const count = REVIEWS.length;
+  const avg = (REVIEWS.reduce((s, r) => s + r.rating, 0) / count).toFixed(1);
+  const stars = (n) =>
+    `<span class="review__stars" aria-label="별점 ${n}점 (5점 만점)">${"★".repeat(n)}<span class="off">${"★".repeat(5 - n)}</span></span>`;
+  const cards = REVIEWS.map((r) => `
+    <article class="review">
+      ${stars(r.rating)}
+      <p class="review__text">${esc(r.text)}</p>
+      <div class="review__meta">${esc(r.author)} · ${esc(r.date)}</div>
+    </article>`).join("");
+  return `<section class="section--tight"><div class="wrap">
+  <h2>이용 후기 <span class="review__avg">★ ${avg} <small>(${count}건)</small></span></h2>
+  <p class="muted" style="font-size:.9rem;margin:4px 0 18px">실제 이용 고객이 남긴 후기이며, 별점 그대로 게시합니다.</p>
+  <div class="reviews" role="list">${cards}</div>
+</div></section>`;
+}
+
+// ---- 상황별 안내 링크 허브 (롱테일 내부링크 · 그룹형 UI) ----
+export function linkHubBlock(groups, heading = "상황별 안내 바로가기") {
+  return `<section class="section--tight"><div class="wrap">
+  <h2>${esc(heading)}</h2>
+  <div class="linkhub">
+  ${groups.map((g) => `<div class="linkhub__group"><h3>${esc(g.h)}</h3><ul>${g.links
+    .map((l) => `<li><a href="${l.url}">${esc(l.anchor)}</a></li>`).join("")}</ul></div>`).join("")}
+  </div>
 </div></section>`;
 }
 

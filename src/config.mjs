@@ -21,6 +21,9 @@ export const SITE = {
 
   locale: "ko_KR",
   region: "강원특별자치도",
+
+  // 네이버 서치어드바이저 사이트 소유 확인 메타
+  naverVerification: "9351c8e8b9854bd6ed7962a433d8642afcffebc1",
 };
 
 // 히어로 배경 & 대표 OG 이미지 (모든 지역 페이지 히어로 + og:image + schema image)

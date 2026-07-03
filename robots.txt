@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://sootheme.pages.dev/sitemap.xml
+Sitemap: https://sootheme.pages.dev/rss.xml

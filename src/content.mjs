@@ -152,6 +152,11 @@ export function cityBody(city) {
     { url: `/area/${area.slug}/`, anchor: `${area.name} 생활권 전체 보기` },
     ...[...new Set(city.stay)].slice(0, 2).map((s) => ({ url: `/use/${s}/`, anchor: `${USE_PAGES.find((u) => u.slug === s)?.name} 이용 기준 확인` })),
     { url: "/check/address/", anchor: `${city.name} 방문 주소 확인 기준` },
+    // 접경 4군은 얇은 페이지(의도적 noindex) 유지를 위해 추가 앵커 제외 — 도어웨이 방지
+    ...(city.type !== "border" ? [
+      { url: "/check/night-travel/", anchor: `${city.name} 야간 이동 가능 여부 확인` },
+      { url: "/check/travel-fee/", anchor: `${city.name} 외곽 이동비 기준 안내` },
+    ] : []),
     { url: "/check/winter-road/", anchor: "겨울철 도로·날씨 확인 안내" },
   ];
 
